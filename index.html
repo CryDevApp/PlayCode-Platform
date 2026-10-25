@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>PlayCode Arcade - Piattaforma Giochi HTML5</title>
+  
+  <!-- ================= PWA & MOBILE META TAGS ================= -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0a0d14">
+  
+  <!-- iOS Safari PWA support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PlayCode">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='38' fill='%230a0d14'/%3E%3Crect x='10' y='10' width='172' height='172' rx='32' fill='%23182133' stroke='%2306b6d4' stroke-width='4'/%3E%3Cpath d='M60 84h72c11 0 20 9 20 20v22c0 11-9 20-20 20-7 0-13-4-17-9l-9-13H86l-9 13c-4 5-10 9-17 9-11 0-20-9-20-20v-22c0-11 9-20 20-20z' fill='%2306b6d4'/%3E%3Ccircle cx='68' cy='115' r='5' fill='%230a0d14'/%3E%3Ccircle cx='80' cy='103' r='5' fill='%230a0d14'/%3E%3Ccircle cx='56' cy='103' r='5' fill='%230a0d14'/%3E%3Ccircle cx='68' cy='91' r='5' fill='%230a0d14'/%3E%3Ccircle cx='124' cy='103' r='5' fill='%23ec4899'/%3E%3Ccircle cx='136' cy='115' r='5' fill='%2310b981'/%3E%3C/svg%3E">
+
+  <!-- Windows Tile Meta -->
+  <meta name="msapplication-TileColor" content="#0a0d14">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Netlify Identity Widget -->
+  <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <!-- Supabase JS Client for Realtime Global Cloud Catalog -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Fira Code', 'monospace'],
+            retro: ['"Press Start 2P"', 'monospace']
+          },
+          colors: {
+            arcade: {
+              dark: '#0a0d14',
+              surface: '#121824',
+              card: '#182133',
+              border: '#25334d',
+              accent: '#06b6d4',
+              neon: '#10b981',
+              pink: '#ec4899',
+              purple: '#8b5cf6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    .fullscreen-modal-container {
+      width: 100vw !important;
+      height: 100dvh !important;
+      max-width: 100vw !important;
+      max-height: 100dvh !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+    }
+
+    /* PWA safe area support (Notch, home indicator) */
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+  </style>
+</head>
+
+<body class="bg-arcade-dark text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-40 bg-arcade-surface/90 backdrop-blur-md border-b border-arcade-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('arcade')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-emerald-400 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <i class="fa-solid fa-gamepad text-arcade-dark text-xl"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
+            PlayCode
+          </span>
+          <span class="font-mono text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold ml-1">
+            ARCADE
+          </span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
+        <button id="nav-arcade" onclick="navigateTo('arcade')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-cyan-400 bg-cyan-950/40 border border-cyan-800/40">
+          <i class="fa-solid fa-layer-group mr-2"></i>Catalogo
+        </button>
+        <button id="nav-studio" onclick="handleStudioNavigation()" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-arcade-card">
+          <i class="fa-solid fa-code mr-2"></i>Studio Sviluppatore
+        </button>
+        <button id="nav-mygames" onclick="navigateTo('mygames')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-arcade-card">
+          <i class="fa-solid fa-folder-open mr-2"></i>I Miei Giochi
+        </button>
+      </nav>
+
+      <!-- Auth Controls & PWA Install Button -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+
+        <!-- Install as Mobile App Button (PWA) -->
+        <button id="pwa-install-btn" onclick="triggerPwaInstall()" class="hidden px-2.5 sm:px-3 py-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm animate-pulse">
+          <i class="fa-solid fa-mobile-screen-button text-cyan-400"></i>
+          <span class="hidden sm:inline">Installa App</span>
+          <span class="sm:hidden">App</span>
+        </button>
+
+        <!-- Cloud Online Status Pill -->
+        <div class="px-2.5 py-1.5 rounded-xl border border-arcade-border text-xs flex items-center space-x-1.5 bg-slate-900/80">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="hidden sm:inline font-mono text-[11px] text-emerald-400 font-semibold">Cloud Connesso</span>
+        </div>
+
+        <!-- Netlify Guest View (Login / Register via Netlify Identity) -->
+        <div id="auth-guest-controls" class="flex items-center space-x-2">
+          <button onclick="openNetlifyAuth('login')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition flex items-center">
+            <i class="fa-solid fa-right-to-bracket mr-1.5 text-cyan-400"></i>Accedi
+          </button>
+          <button onclick="openNetlifyAuth('signup')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-arcade-dark transition shadow-sm shadow-cyan-500/20 flex items-center">
+            <i class="fa-solid fa-user-plus mr-1.5"></i>Registrati
+          </button>
+        </div>
+
+        <!-- Netlify Logged-in Dev View -->
+        <div id="auth-user-controls" class="hidden relative flex items-center space-x-3">
+          <div class="relative">
+            <button id="user-profile-btn" onclick="toggleAccountMenu(event)" title="Account Sviluppatore Netlify" class="flex items-center space-x-2.5 bg-arcade-card hover:bg-slate-800 border border-arcade-border hover:border-cyan-500/50 px-3 py-1.5 rounded-xl transition cursor-pointer">
+              <div id="user-avatar" class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white uppercase shadow-sm">
+                N
+              </div>
+              <div class="text-left hidden sm:block">
+                <div id="user-display-name" class="text-xs font-bold leading-tight text-white max-w-[120px] truncate">Dev</div>
+                <div class="flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span class="text-[10px] text-cyan-400 font-mono">SVILUPPATORE</span>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="account-dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-60 bg-arcade-surface border border-arcade-border rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div class="px-4 py-2 border-b border-arcade-border/70 mb-1">
+                <div class="text-[10px] font-mono text-slate-400 uppercase">Account:</div>
+                <div id="account-menu-email" class="text-xs font-semibold text-cyan-300 truncate">dev@arcade.com</div>
+              </div>
+              
+              <button onclick="navigateTo('mygames'); toggleAccountMenu(event)" class="w-full text-left px-4 py-2.5 text-xs text-slate-200 hover:text-white hover:bg-slate-800/80 flex items-center transition">
+                <i class="fa-solid fa-folder-open mr-2.5 text-emerald-400"></i>I Miei Giochi Salvati
+              </button>
+              
+              <div class="border-t border-arcade-border/70 my-1"></div>
+              
+              <button onclick="logoutNetlifyUser(); toggleAccountMenu(event)" class="w-full text-left px-4 py-2.5 text-xs text-rose-400 hover:bg-rose-950/30 flex items-center transition">
+                <i class="fa-solid fa-arrow-right-from-bracket mr-2.5"></i>Disconnetti
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile Nav Bar -->
+    <div class="md:hidden flex border-t border-arcade-border px-2 py-1.5 bg-arcade-surface/95 justify-around text-xs">
+      <button onclick="navigateTo('arcade')" class="p-2 text-cyan-400 flex flex-col items-center">
+        <i class="fa-solid fa-layer-group mb-1"></i>Catalogo
+      </button>
+      <button onclick="handleStudioNavigation()" class="p-2 text-slate-400 hover:text-white flex flex-col items-center">
+        <i class="fa-solid fa-code mb-1"></i>Studio
+      </button>
+      <button onclick="navigateTo('mygames')" class="p-2 text-slate-400 hover:text-white flex flex-col items-center">
+        <i class="fa-solid fa-folder mb-1"></i>I Miei Giochi
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= MOBILE APP INSTALL PROMPT BANNER ================= -->
+  <div id="pwa-mobile-banner" class="hidden bg-gradient-to-r from-cyan-950 via-slate-900 to-arcade-surface border-b border-cyan-500/30 px-4 py-2.5 text-xs flex items-center justify-between text-slate-200 z-30">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center flex-shrink-0 text-base border border-cyan-500/30">
+        <i class="fa-solid fa-mobile-screen"></i>
+      </div>
+      <div>
+        <span class="font-bold text-white block">Salva PlayCode Arcade sullo schermo</span>
+        <span class="text-[11px] text-slate-400">Gioca a schermo intero senza barre del browser!</span>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <button onclick="triggerPwaInstall()" class="px-3 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-arcade-dark font-bold text-xs shadow">
+        Installa
+      </button>
+      <button onclick="dismissPwaBanner()" class="p-1 text-slate-400 hover:text-white text-sm">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- iOS Specific Add to Home Screen Instructions Modal -->
+  <div id="ios-install-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+    <div class="bg-arcade-surface border border-arcade-border rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl border border-cyan-500/30">
+        <i class="fa-brands fa-apple"></i>
+      </div>
+      <h3 class="font-bold text-lg text-white">Installa su iPhone / iPad</h3>
+      <div class="text-xs text-slate-300 space-y-3 text-left bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+        <div class="flex items-center space-x-3">
+          <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-xs flex-shrink-0">1</span>
+          <span>Premi il tasto <strong>Condividi</strong> in Safari (<i class="fa-solid fa-arrow-up-from-bracket text-cyan-400"></i> in basso).</span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-xs flex-shrink-0">2</span>
+          <span>Scorri in basso e tocca <strong>"Aggiungi alla schermata Home"</strong> (<i class="fa-regular fa-square-plus text-cyan-400"></i>).</span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-xs flex-shrink-0">3</span>
+          <span>Premi <strong>Aggiungi</strong> in alto a destra. Fatto!</span>
+        </div>
+      </div>
+      <button onclick="closeIosInstallModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-arcade-border">
+        Ho Capito
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= NOTIFICATION TOAST ================= -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- ================= MAIN CONTENT VIEWS ================= -->
+  <main class="flex-1 flex flex-col">
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- VIEW 1: ARCADE CATALOG (PUBLIC FOR ALL PLAYERS & BROWSERS) -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="view-arcade" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+      
+      <!-- Hero Banner -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-arcade-surface via-slate-900 to-arcade-card border border-arcade-border p-6 sm:p-10 mb-8 shadow-2xl">
+        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="max-w-3xl relative z-10">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-medium mb-4">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Giochi 100% nativi HTML5 a Risoluzione Adattiva</span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight mb-3">
+            Gioca, Sperimenta e <br><span class="bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">Crea i Tuoi Videogiochi</span>
+          </h1>
+          <p class="text-slate-400 text-sm sm:text-base leading-relaxed mb-2">
+            Tutti i giochi pubblicati su questa piattaforma sono salvati nel cloud e giocabili da chiunque nel mondo su qualsiasi dispositivo!
+          </p>
+        </div>
+      </div>
+
+      <!-- Catalog Filter & Search Bar -->
+      <div id="catalog-anchor" class="flex flex-col gap-4 mb-6">
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+          <div class="relative flex-1 max-w-md">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+            <input type="text" id="arcade-search" oninput="filterGames()" placeholder="Cerca giochi o autori..."
+              class="w-full bg-arcade-surface border border-arcade-border rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          </div>
+
+          <!-- Platform (Device) Filter -->
+          <div class="flex items-center space-x-1.5 bg-arcade-surface border border-arcade-border p-1 rounded-xl self-start md:self-auto">
+            <span class="text-[11px] font-mono text-slate-400 px-2 hidden sm:inline"><i class="fa-solid fa-filter mr-1"></i>Dispositivo:</span>
+            <button onclick="setPlatformFilter('all')" data-plat="all" class="plat-pill active-plat px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition">
+              Tutti
+            </button>
+            <button onclick="setPlatformFilter('pc')" data-plat="pc" class="plat-pill px-2.5 py-1 rounded-lg text-xs font-semibold bg-transparent text-slate-400 hover:text-white transition">
+              💻 PC
+            </button>
+            <button onclick="setPlatformFilter('mobile')" data-plat="mobile" class="plat-pill px-2.5 py-1 rounded-lg text-xs font-semibold bg-transparent text-slate-400 hover:text-white transition">
+              📱 Mobile
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Pills -->
+        <div class="flex items-center space-x-2 overflow-x-auto pb-1">
+          <button onclick="setCategoryFilter('all')" data-cat="all" class="cat-pill active-cat px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 whitespace-nowrap transition">
+            Tutte le Categorie
+          </button>
+          <button onclick="setCategoryFilter('Arcade')" data-cat="Arcade" class="cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-arcade-surface text-slate-400 hover:text-white border border-arcade-border whitespace-nowrap transition">
+            Arcade
+          </button>
+          <button onclick="setCategoryFilter('Action')" data-cat="Action" class="cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-arcade-surface text-slate-400 hover:text-white border border-arcade-border whitespace-nowrap transition">
+            Azione
+          </button>
+          <button onclick="setCategoryFilter('Retro')" data-cat="Retro" class="cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-arcade-surface text-slate-400 hover:text-white border border-arcade-border whitespace-nowrap transition">
+            Retrò
+          </button>
+          <button onclick="setCategoryFilter('Puzzle')" data-cat="Puzzle" class="cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-arcade-surface text-slate-400 hover:text-white border border-arcade-border whitespace-nowrap transition">
+            Puzzle
+          </button>
+        </div>
+      </div>
+
+      <!-- Games Grid -->
+      <div id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered Dynamically via JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="no-games-msg" class="hidden text-center py-16 bg-arcade-surface rounded-2xl border border-arcade-border">
+        <i class="fa-solid fa-ghost text-4xl text-slate-600 mb-3"></i>
+        <h3 class="text-lg font-bold text-slate-300">Nessun gioco trovato</h3>
+        <p class="text-slate-500 text-sm mt-1">Nessun gioco corrisponde ai filtri di ricerca e dispositivo correnti.</p>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- VIEW 2: DEVELOPER STUDIO / COMPILER -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="view-studio" class="hidden flex-1 flex flex-col bg-arcade-dark">
+      
+      <!-- Studio Header / Meta Settings -->
+      <div class="bg-arcade-surface border-b border-arcade-border px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          
+          <div class="flex items-center flex-wrap gap-2 flex-1 min-w-[280px]">
+            <!-- Emoji Icon Picker -->
+            <div class="relative">
+              <button id="studio-icon-btn" onclick="toggleEmojiPicker()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-arcade-border text-xl flex items-center justify-center transition">
+                🚀
+              </button>
+              <div id="emoji-picker-popover" class="hidden absolute top-12 left-0 z-50 bg-arcade-card border border-arcade-border p-2 rounded-xl grid grid-cols-4 gap-1 shadow-2xl">
+                <button onclick="selectEmoji('🚀')" class="p-2 hover:bg-slate-700 rounded text-xl">🚀</button>
+                <button onclick="selectEmoji('👾')" class="p-2 hover:bg-slate-700 rounded text-xl">👾</button>
+                <button onclick="selectEmoji('🎮')" class="p-2 hover:bg-slate-700 rounded text-xl">🎮</button>
+                <button onclick="selectEmoji('🐍')" class="p-2 hover:bg-slate-700 rounded text-xl">🐍</button>
+                <button onclick="selectEmoji('🏓')" class="p-2 hover:bg-slate-700 rounded text-xl">🏓</button>
+                <button onclick="selectEmoji('🧱')" class="p-2 hover:bg-slate-700 rounded text-xl">🧱</button>
+                <button onclick="selectEmoji('🏎️')" class="p-2 hover:bg-slate-700 rounded text-xl">🏎️</button>
+                <button onclick="selectEmoji('⭐')" class="p-2 hover:bg-slate-700 rounded text-xl">⭐</button>
+              </div>
+            </div>
+
+            <!-- Title Input -->
+            <div class="flex-1 min-w-[150px]">
+              <input type="text" id="studio-game-title" value="Mio Nuovo Gioco" placeholder="Titolo del Gioco"
+                class="w-full bg-slate-900 border border-arcade-border text-white font-bold text-sm px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <!-- Author Field -->
+            <div class="w-32">
+              <input type="text" id="studio-game-author" value="Sviluppatore" placeholder="Tuo Nome Autore"
+                class="w-full bg-slate-900 border border-arcade-border text-cyan-300 text-xs px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <!-- Category Selector -->
+            <select id="studio-game-category" class="bg-slate-900 border border-arcade-border text-xs text-slate-300 font-medium px-2.5 py-2 rounded-lg focus:outline-none focus:border-cyan-500">
+              <option value="Arcade">Arcade</option>
+              <option value="Action">Azione</option>
+              <option value="Puzzle">Puzzle</option>
+              <option value="Retro">Retrò</option>
+            </select>
+
+            <!-- Platform Device Selector (PC / Mobile / Both) -->
+            <div class="flex items-center space-x-1 bg-slate-900 border border-arcade-border px-2 py-1 rounded-lg">
+              <i class="fa-solid fa-gamepad text-cyan-400 text-xs"></i>
+              <select id="studio-game-platform" title="Compatibilità Dispositivo" class="bg-transparent text-xs text-slate-200 font-semibold focus:outline-none cursor-pointer">
+                <option value="both" class="bg-slate-900 text-white">💻📱 PC & Mobile</option>
+                <option value="pc" class="bg-slate-900 text-white">💻 Solo PC</option>
+                <option value="mobile" class="bg-slate-900 text-white">📱 Solo Mobile</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Studio Actions -->
+          <div class="flex items-center space-x-2">
+            <!-- Preset Selector -->
+            <div class="relative group">
+              <button class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-arcade-border text-xs font-semibold flex items-center">
+                <i class="fa-solid fa-code-branch mr-1.5 text-cyan-400"></i>Template <i class="fa-solid fa-chevron-down ml-1.5 text-[10px]"></i>
+              </button>
+              <div class="absolute right-0 top-full mt-1 w-48 bg-arcade-card border border-arcade-border rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+                <button onclick="loadTemplate('canvas')" class="w-full text-left px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 hover:text-white flex items-center">
+                  <i class="fa-solid fa-palette mr-2 text-cyan-400"></i>Canvas Base 2D
+                </button>
+                <button onclick="loadTemplate('snake')" class="w-full text-left px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 hover:text-white flex items-center">
+                  <i class="fa-solid fa-staff-snake mr-2 text-emerald-400"></i>Snake Retrò
+                </button>
+                <button onclick="loadTemplate('clicker')" class="w-full text-left px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 hover:text-white flex items-center">
+                  <i class="fa-solid fa-hand-pointer mr-2 text-purple-400"></i>Clicker Game
+                </button>
+                <button onclick="loadTemplate('empty')" class="w-full text-left px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 hover:text-white flex items-center">
+                  <i class="fa-regular fa-file mr-2 text-slate-400"></i>Foglio Vuoto
+                </button>
+              </div>
+            </div>
+
+            <!-- Run Button (Direct Fullscreen) -->
+            <button onclick="executeCodeFullscreen()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-arcade-dark font-extrabold text-xs flex items-center shadow-lg shadow-cyan-500/25 transition">
+              <i class="fa-solid fa-play mr-1.5"></i>Esegui Fullscreen
+            </button>
+
+            <!-- Save Draft Button -->
+            <button onclick="saveCurrentDraft()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-arcade-border flex items-center transition">
+              <i class="fa-solid fa-floppy-disk mr-1.5"></i>Salva Bozza
+            </button>
+
+            <!-- Publish Button -->
+            <button onclick="publishGameFromStudio()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-arcade-dark font-extrabold text-xs flex items-center shadow-md shadow-emerald-500/20 transition">
+              <i class="fa-solid fa-globe mr-1.5"></i>Pubblica Online per Tutti
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Editor Split Workspace -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 overflow-hidden min-h-[600px]">
+        
+        <!-- LEFT: CODE EDITOR -->
+        <div class="flex flex-col border-r border-arcade-border bg-slate-950">
+          
+          <!-- Code Tabs -->
+          <div class="flex items-center justify-between bg-arcade-surface px-3 pt-2 border-b border-arcade-border">
+            <div class="flex space-x-1">
+              <button onclick="switchEditorTab('html')" id="tab-html" class="editor-tab active-editor-tab px-3 py-1.5 rounded-t-lg text-xs font-mono font-semibold bg-slate-950 text-cyan-400 border-t-2 border-cyan-400">
+                <i class="fa-brands fa-html5 mr-1 text-orange-500"></i>HTML
+              </button>
+              <button onclick="switchEditorTab('css')" id="tab-css" class="editor-tab px-3 py-1.5 rounded-t-lg text-xs font-mono font-semibold text-slate-400 hover:text-white">
+                <i class="fa-brands fa-css3-alt mr-1 text-blue-500"></i>CSS
+              </button>
+              <button onclick="switchEditorTab('js')" id="tab-js" class="editor-tab px-3 py-1.5 rounded-t-lg text-xs font-mono font-semibold text-slate-400 hover:text-white">
+                <i class="fa-brands fa-js mr-1 text-yellow-400"></i>JavaScript
+              </button>
+            </div>
+
+            <!-- Auto-Run Checkbox -->
+            <label class="flex items-center space-x-2 text-[11px] text-slate-400 cursor-pointer pb-1">
+              <input type="checkbox" id="auto-run-toggle" checked class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              <span>Auto-anteprima</span>
+            </label>
+          </div>
+
+          <!-- Description bar -->
+          <div class="bg-slate-900/60 px-3 py-1.5 border-b border-arcade-border flex items-center text-xs">
+            <span class="text-slate-400 mr-2 text-[11px] font-mono">DESCRIZIONE:</span>
+            <input type="text" id="studio-game-desc" placeholder="Breve descrizione o comandi..."
+              class="w-full bg-transparent text-slate-200 text-xs focus:outline-none placeholder-slate-600">
+          </div>
+
+          <!-- Code Textareas -->
+          <div class="flex-1 relative overflow-hidden bg-slate-950 font-mono text-xs sm:text-sm">
+            <textarea id="code-html" spellcheck="false" placeholder="<!-- Markup HTML e <canvas> -->"
+              class="code-input w-full h-full p-4 bg-transparent text-emerald-300 resize-none focus:outline-none font-mono leading-relaxed" oninput="handleCodeInput()"></textarea>
+
+            <textarea id="code-css" spellcheck="false" placeholder="/* CSS del gioco */"
+              class="code-input hidden w-full h-full p-4 bg-transparent text-cyan-300 resize-none focus:outline-none font-mono leading-relaxed" oninput="handleCodeInput()"></textarea>
+
+            <textarea id="code-js" spellcheck="false" placeholder="// Logica JavaScript"
+              class="code-input hidden w-full h-full p-4 bg-transparent text-yellow-200 resize-none focus:outline-none font-mono leading-relaxed" oninput="handleCodeInput()"></textarea>
+          </div>
+
+          <!-- Editor Footer Info -->
+          <div class="bg-arcade-surface px-3 py-1.5 border-t border-arcade-border flex justify-between items-center text-[11px] font-mono text-slate-400">
+            <span id="editor-active-indicator">Lingua attiva: HTML</span>
+            <span class="text-cyan-400 flex items-center"><i class="fa-solid fa-arrows-to-eye mr-1"></i>Risoluzione Adattiva Fullscreen</span>
+          </div>
+        </div>
+
+        <!-- RIGHT: LIVE PREVIEW & CONSOLE -->
+        <div class="flex flex-col bg-slate-900">
+          
+          <!-- Preview Toolbar -->
+          <div class="flex items-center justify-between bg-arcade-surface px-4 py-2 border-b border-arcade-border">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs font-bold text-slate-300 uppercase tracking-wide">Box Anteprima</span>
+              <span id="preview-status-pill" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/40">Attivo</span>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <button onclick="updateStudioBoxPreview()" title="Ricarica Anteprima" class="px-2.5 py-1 text-xs text-slate-300 hover:text-cyan-400 rounded bg-slate-800 hover:bg-slate-700 border border-arcade-border transition flex items-center">
+                <i class="fa-solid fa-rotate-right mr-1 text-xs"></i>Ricarica
+              </button>
+              <button onclick="executeCodeFullscreen()" title="Gioca a Schermo Intero" class="px-2.5 py-1 text-xs font-semibold rounded bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-800/60 flex items-center transition shadow-sm">
+                <i class="fa-solid fa-expand mr-1.5 text-xs text-cyan-400"></i>Fullscreen
+              </button>
+              <button onclick="toggleConsoleDrawer()" id="console-toggle-btn" class="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-arcade-border">
+                <i class="fa-solid fa-terminal mr-1 text-amber-400"></i>Console (<span id="console-count">0</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Sandboxed Preview Area -->
+          <div id="studio-viewport-container" class="flex-1 bg-black flex items-center justify-center relative overflow-hidden min-h-[350px]">
+            <iframe id="studio-game-frame"
+              class="w-full h-full border-0 bg-black block"
+              sandbox="allow-scripts allow-modals allow-pointer-lock"
+              allow="fullscreen; autoplay; pointer-lock"
+              allowfullscreen
+              title="Game Preview">
+            </iframe>
+          </div>
+
+          <!-- Collapsible Developer Console Drawer -->
+          <div id="studio-console-drawer" class="h-36 bg-slate-950 border-t border-arcade-border flex flex-col font-mono text-xs hidden">
+            <div class="flex items-center justify-between px-3 py-1 bg-slate-900 border-b border-arcade-border text-slate-400 text-[10px]">
+              <span class="font-bold uppercase tracking-wider"><i class="fa-solid fa-terminal mr-1"></i>Output Console Gioco</span>
+              <button onclick="clearConsoleLog()" class="hover:text-rose-400">Pulisci console</button>
+            </div>
+            <div id="studio-console-logs" class="flex-1 overflow-y-auto p-2 space-y-1 text-[11px]">
+              <div class="text-slate-600 italic">I log appariranno qui...</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- VIEW 3: MY GAMES DASHBOARD -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="view-mygames" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">I Miei Giochi</h2>
+          <p class="text-slate-400 text-sm mt-1">
+            Tutti i giochi salvati nel tuo account e pubblicati nel catalogo globale.
+          </p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="syncGamesWithCloud(true)" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-arcade-border font-medium text-xs flex items-center transition">
+            <i class="fa-solid fa-rotate mr-1.5 text-cyan-400"></i>Sincronizza Catalogo
+          </button>
+          <button onclick="createNewGameInStudio()" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-arcade-dark font-bold text-sm flex items-center shadow-lg shadow-cyan-500/20">
+            <i class="fa-solid fa-plus mr-2"></i>Nuovo Progetto
+          </button>
+        </div>
+      </div>
+
+      <!-- User Stats Banner -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="bg-arcade-surface border border-arcade-border p-4 rounded-2xl flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-gamepad"></i>
+          </div>
+          <div>
+            <div id="stat-total-games" class="text-2xl font-black text-white">0</div>
+            <div class="text-xs text-slate-400">Giochi nel Tuo Account</div>
+          </div>
+        </div>
+        <div class="bg-arcade-surface border border-arcade-border p-4 rounded-2xl flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-globe"></i>
+          </div>
+          <div>
+            <div id="stat-published-games" class="text-2xl font-black text-white">0</div>
+            <div class="text-xs text-slate-400">Pubblicati per Tutti nel Mondo</div>
+          </div>
+        </div>
+        <div class="bg-arcade-surface border border-arcade-border p-4 rounded-2xl flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-fire"></i>
+          </div>
+          <div>
+            <div id="stat-total-plays" class="text-2xl font-black text-white">0</div>
+            <div class="text-xs text-slate-400">Partite Totali Giocate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Games List -->
+      <div id="my-games-container" class="space-y-3">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= PLAY GAME MODAL (FULLSCREEN HARDWARE ADAPTIVE) ================= -->
+  <div id="play-modal" class="fixed inset-0 z-50 bg-black hidden flex items-center justify-center p-0 overflow-hidden">
+    <div id="play-modal-card" class="bg-black w-full h-full flex flex-col overflow-hidden transition-all duration-200">
+      
+      <!-- Minimalist Top Bar -->
+      <div id="modal-header-bar" class="flex items-center justify-between px-3 sm:px-5 py-2 bg-slate-950/90 border-b border-slate-800 text-white flex-shrink-0 z-20">
+        <div class="flex items-center space-x-3 overflow-hidden">
+          <span id="modal-game-emoji" class="text-xl sm:text-2xl flex-shrink-0">🎮</span>
+          <div class="truncate">
+            <div class="flex items-center space-x-2">
+              <h3 id="modal-game-title" class="text-xs sm:text-sm font-bold text-white truncate">Titolo</h3>
+              <span id="modal-platform-badge" class="px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-slate-700 text-[10px] font-mono">💻📱</span>
+              <span id="modal-resolution-badge" class="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 text-[10px] font-mono hidden sm:inline">Rilevamento...</span>
+            </div>
+            <div class="text-[10px] sm:text-xs text-slate-400 truncate">
+              <span>Autore: <strong id="modal-game-author" class="text-cyan-400">Autore</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 flex-shrink-0">
+          <button onclick="reloadModalGame()" title="Ricarica Partita" class="p-1.5 sm:p-2 text-slate-300 hover:text-white rounded-lg bg-slate-800 hover:bg-slate-700 transition text-xs">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+          <button id="modal-fullscreen-toggle-btn" onclick="toggleModalDeviceFullscreen()" title="Schermo Intero Dispositivo" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-cyan-500 hover:bg-cyan-400 text-arcade-dark flex items-center transition shadow-md">
+            <i class="fa-solid fa-expand mr-1.5"></i><span class="hidden sm:inline">Schermo Intero</span>
+          </button>
+          <button onclick="closePlayModal()" title="Chiudi Gioco" class="p-1.5 sm:p-2 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition text-sm">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Game Frame Container -->
+      <div id="modal-frame-wrapper" class="bg-black flex-1 w-full h-full relative overflow-hidden flex items-center justify-center">
+        <iframe id="modal-game-frame" 
+          class="w-full h-full border-0 bg-black block"
+          sandbox="allow-scripts allow-modals allow-pointer-lock"
+          allow="fullscreen; autoplay; pointer-lock"
+          allowfullscreen
+          title="Play Canvas">
+        </iframe>
+
+        <!-- Floating exit fullscreen button -->
+        <button id="floating-exit-fs-btn" onclick="toggleModalDeviceFullscreen()" class="hidden absolute top-3 right-3 z-30 bg-black/80 hover:bg-black text-white px-3 py-1.5 rounded-xl border border-white/20 text-xs backdrop-blur-md transition flex items-center shadow-2xl">
+          <i class="fa-solid fa-compress mr-1.5 text-cyan-400"></i>Esci Schermo Intero
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-arcade-surface border-t border-arcade-border py-6 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-gamepad text-cyan-400"></i>
+        <span class="font-bold text-slate-300">PlayCode Arcade</span> &copy; Piattaforma aperta per giochi HTML5.
+      </div>
+      <div class="flex items-center space-x-4">
+        <button onclick="triggerPwaInstall()" class="hover:text-cyan-400 transition flex items-center">
+          <i class="fa-solid fa-download mr-1"></i>Installa App
+        </button>
+        <span>•</span>
+        <span class="text-emerald-400 font-mono">Cloud Database Attivo</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= APPLICATION LOGIC SCRIPT ================= -->
+  <script>
+    /* ==========================================================
+       SUPABASE CREDENTIALS DIRECT INTEGRATION
+       ========================================================== */
+    const SUPABASE_PROJECT_URL = "https://gjybttueokadqatdrynk.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqeWJ0dHVlb2thZHFhdGRyeW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5Mzg2NDQsImV4cCI6MjEwODUxNDY0NH0.l_pxaBTb7WP5MHxjZ1ztDhV3jjGK_9VIMN3ETfdZ9YA";
+
+    let supabaseClient = null;
+    try {
+      if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
+      }
+    } catch(err) {
+      console.warn("Errore inizializzazione Supabase:", err);
+    }
+
+    /* ==========================================================
+       INITIAL DATA & PRE-LOADED WORKING HTML5 GAMES
+       ========================================================== */
+    const DEFAULT_GAMES = [
+      {
+        id: 'game-snake',
+        title: 'Retro Neon Snake',
+        author: 'ArcadeMaster',
+        authorId: 'dev-master',
+        category: 'Retro',
+        platform: 'both',
+        emoji: '🐍',
+        description: 'Usa le frecce della tastiera o i pulsanti a schermo per guidare il serpente e raccogliere i pixel di energia!',
+        plays: 142,
+        isPublished: true,
+        updatedAt: '2026-03-10',
+        html: `<div class="game-wrapper">
+  <div class="hud">Punti: <span id="score">0</span></div>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div class="touch-controls">
+    <button onclick="setDir(0, -grid)">⬆️</button>
+    <div class="middle-row">
+      <button onclick="setDir(-grid, 0)">⬅️</button>
+      <button onclick="setDir(grid, 0)">➡️</button>
+    </div>
+    <button onclick="setDir(0, grid)">⬇️</button>
+  </div>
+</div>`,
+        css: `body {
+  margin: 0;
+  background: #090d16;
+  color: #10b981;
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+.game-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+.hud {
+  font-size: 22px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px #10b981;
+  font-weight: bold;
+}
+canvas {
+  background: #05070c;
+  border: 3px solid #10b981;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+  border-radius: 12px;
+  max-width: 90vw;
+  max-height: 65vh;
+}
+.touch-controls {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.touch-controls button {
+  background: #1e293b;
+  border: 1px solid #10b981;
+  color: white;
+  font-size: 18px;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+.middle-row { display: flex; gap: 20px; }`,
+        js: `const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+
+const grid = 20;
+let count = 0;
+let score = 0;
+
+let snake = {
+  x: 160,
+  y: 160,
+  dx: grid,
+  dy: 0,
+  cells: [],
+  maxCells: 4
+};
+
+let apple = { x: 320, y: 320 };
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function setDir(x, y) {
+  if (x !== 0 && snake.dx === 0) { snake.dx = x; snake.dy = 0; }
+  if (y !== 0 && snake.dy === 0) { snake.dy = y; snake.dx = 0; }
+}
+
+function loop() {
+  requestAnimationFrame(loop);
+
+  if (++count < 6) return;
+  count = 0;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  snake.x += snake.dx;
+  snake.y += snake.dy;
+
+  if (snake.x < 0) snake.x = canvas.width - grid;
+  else if (snake.x >= canvas.width) snake.x = 0;
+  if (snake.y < 0) snake.y = canvas.height - grid;
+  else if (snake.y >= canvas.height) snake.y = 0;
+
+  snake.cells.unshift({x: snake.x, y: snake.y});
+  if (snake.cells.length > snake.maxCells) {
+    snake.cells.pop();
+  }
+
+  ctx.fillStyle = '#ec4899';
+  ctx.shadowColor = '#ec4899';
+  ctx.shadowBlur = 10;
+  ctx.fillRect(apple.x, apple.y, grid-1, grid-1);
+
+  ctx.fillStyle = '#10b981';
+  ctx.shadowColor = '#10b981';
+  ctx.shadowBlur = 8;
+  snake.cells.forEach(function(cell, index) {
+    ctx.fillRect(cell.x, cell.y, grid-1, grid-1);
+
+    if (cell.x === apple.x && cell.y === apple.y) {
+      snake.maxCells++;
+      score += 10;
+      scoreEl.innerText = score;
+      apple.x = getRandomInt(0, 20) * grid;
+      apple.y = getRandomInt(0, 20) * grid;
+    }
+
+    for (let i = index + 1; i < snake.cells.length; i++) {
+      if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+        snake.x = 160;
+        snake.y = 160;
+        snake.cells = [];
+        snake.maxCells = 4;
+        snake.dx = grid;
+        snake.dy = 0;
+        score = 0;
+        scoreEl.innerText = score;
+      }
+    }
+  });
+}
+
+window.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowLeft' && snake.dx === 0) setDir(-grid, 0);
+  else if (e.key === 'ArrowUp' && snake.dy === 0) setDir(0, -grid);
+  else if (e.key === 'ArrowRight' && snake.dx === 0) setDir(grid, 0);
+  else if (e.key === 'ArrowDown' && snake.dy === 0) setDir(0, grid);
+});
+
+requestAnimationFrame(loop);`
+      },
+      {
+        id: 'game-pong',
+        title: 'Cyber Pong DX',
+        author: 'PixelNinja',
+        authorId: 'dev-pixel',
+        category: 'Arcade',
+        platform: 'both',
+        emoji: '🏓',
+        description: 'Sfida l\'intelligenza artificiale muovendo il mouse o toccando lo schermo!',
+        plays: 289,
+        isPublished: true,
+        updatedAt: '2026-03-01',
+        html: `<div class="wrap">
+  <div class="score">TU: <span id="pScore">0</span> | CPU: <span id="cScore">0</span></div>
+  <canvas id="pong" width="600" height="400"></canvas>
+  <div class="info">Muovi il cursore o tocca lo schermo per controllare la racchetta</div>
+</div>`,
+        css: `body {
+  margin: 0;
+  background: #020617;
+  color: #38bdf8;
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+.wrap { text-align: center; max-width: 95vw; }
+.score { font-size: 24px; font-weight: bold; margin-bottom: 8px; font-family: monospace; }
+canvas {
+  background: #090d16;
+  border: 2px solid #38bdf8;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.4);
+  max-width: 90vw;
+  max-height: 75vh;
+  cursor: pointer;
+}
+.info { color: #64748b; font-size: 12px; margin-top: 8px; }`,
+        js: `const canvas = document.getElementById('pong');
+const ctx = canvas.getContext('2d');
+
+let pScore = 0, cScore = 0;
+const pScoreEl = document.getElementById('pScore');
+const cScoreEl = document.getElementById('cScore');
+
+const player = { x: 10, y: 160, w: 12, h: 80 };
+const cpu = { x: canvas.width - 22, y: 160, w: 12, h: 80, speed: 4 };
+const ball = { x: canvas.width / 2, y: canvas.height / 2, r: 8, dx: 5, dy: 5 };
+
+function handleMove(clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const scale = canvas.height / rect.height;
+  player.y = (clientY - rect.top) * scale - player.h / 2;
+}
+
+canvas.addEventListener('mousemove', (e) => handleMove(e.clientY));
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  handleMove(e.touches[0].clientY);
+}, { passive: false });
+
+function update() {
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  if (ball.y - ball.r < 0 || ball.y + ball.r > canvas.height) {
+    ball.dy *= -1;
+  }
+
+  if (cpu.y + cpu.h / 2 < ball.y - 10) cpu.y += cpu.speed;
+  else if (cpu.y + cpu.h / 2 > ball.y + 10) cpu.y -= cpu.speed;
+
+  if (ball.x - ball.r < player.x + player.w &&
+      ball.y > player.y && ball.y < player.y + player.h) {
+    ball.dx = Math.abs(ball.dx);
+  }
+
+  if (ball.x + ball.r > cpu.x &&
+      ball.y > cpu.y && ball.y < cpu.y + cpu.h) {
+    ball.dx = -Math.abs(ball.dx);
+  }
+
+  if (ball.x < 0) {
+    cScore++;
+    cScoreEl.innerText = cScore;
+    resetBall();
+  } else if (ball.x > canvas.width) {
+    pScore++;
+    pScoreEl.innerText = pScore;
+    resetBall();
+  }
+}
+
+function resetBall() {
+  ball.x = canvas.width / 2;
+  ball.y = canvas.height / 2;
+  ball.dx = (Math.random() > 0.5 ? 5 : -5);
+  ball.dy = (Math.random() > 0.5 ? 5 : -5);
+}
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = '#1e293b';
+  ctx.setLineDash([8, 8]);
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, 0);
+  ctx.lineTo(canvas.width / 2, canvas.height);
+  ctx.stroke();
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+  ctx.fillStyle = '#ec4899';
+  ctx.fillRect(cpu.x, cpu.y, cpu.w, cpu.h);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function gameLoop() {
+  update();
+  render();
+  requestAnimationFrame(gameLoop);
+}
+gameLoop();`
+      }
+    ];
+
+    const STORAGE_KEY_GAMES = 'playcode_arcade_games_v1';
+    const STORAGE_KEY_AUTH_USER = 'playcode_active_user_session';
+
+    let state = {
+      currentUser: null,
+      games: [],
+      currentTab: 'html',
+      activeFilter: 'all',
+      activePlatformFilter: 'all',
+      searchQuery: '',
+      currentEditingGameId: null,
+      selectedEmoji: '🚀',
+      activeModalGame: null,
+      consoleLogs: []
+    };
+
+    /* ==========================================================
+       PWA INSTALLATION SUPPORT (ANDROID & iOS)
+       ========================================================== */
+    let deferredPrompt = null;
+
+    function initPwaFeatures() {
+      // 1. Registra Service Worker se supportato
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch((err) => {
+            console.log('ServiceWorker registrazione non riuscita:', err);
+          });
+        });
+      }
+
+      // 2. Cattura l'evento nativo di installazione per Android & Chromium
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Mostra i bottoni di installazione
+        const installBtn = document.getElementById('pwa-install-btn');
+        if (installBtn) installBtn.classList.remove('hidden');
+
+        const bannerDismissed = localStorage.getItem('playcode_pwa_banner_dismissed');
+        const mobileBanner = document.getElementById('pwa-mobile-banner');
+        if (mobileBanner && !bannerDismissed) {
+          mobileBanner.classList.remove('hidden');
+        }
+      });
+
+      // Se l'app è già installata o aperta come standalone
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        const installBtn = document.getElementById('pwa-install-btn');
+        const mobileBanner = document.getElementById('pwa-mobile-banner');
+        if (installBtn) installBtn.classList.add('hidden');
+        if (mobileBanner) mobileBanner.classList.add('hidden');
+        showToast("PlayCode Arcade installata con successo!", "success");
+      });
+
+      // Mostra il pulsante di installazione per iOS Safari se non è già standalone
+      const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+      const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+      if (isIos && !isStandalone) {
+        const installBtn = document.getElementById('pwa-install-btn');
+        if (installBtn) installBtn.classList.remove('hidden');
+        const bannerDismissed = localStorage.getItem('playcode_pwa_banner_dismissed');
+        const mobileBanner = document.getElementById('pwa-mobile-banner');
+        if (mobileBanner && !bannerDismissed) {
+          mobileBanner.classList.remove('hidden');
+        }
+      }
+    }
+
+    function triggerPwaInstall() {
+      const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+      
+      if (deferredPrompt) {
+        // Flusso nativo Android / Desktop
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showToast("Installazione avviata!", "success");
+          }
+          deferredPrompt = null;
+        });
+      } else if (isIos) {
+        // Istruzioni personalizzate per iOS Safari
+        document.getElementById('ios-install-modal').classList.remove('hidden');
+      } else {
+        showToast("Per installare l'app, tocca i 3 puntini del browser e seleziona 'Aggiungi a schermata Home'", "info");
+      }
+    }
+
+    function closeIosInstallModal() {
+      document.getElementById('ios-install-modal').classList.add('hidden');
+    }
+
+    function dismissPwaBanner() {
+      const banner = document.getElementById('pwa-mobile-banner');
+      if (banner) banner.classList.add('hidden');
+      localStorage.setItem('playcode_pwa_banner_dismissed', 'true');
+    }
+
+    /* ==========================================================
+       APP INITIALIZATION
+       ========================================================== */
+    async function initApp() {
+      initPwaFeatures();
+
+      // 1. Ripristina immediatamente la sessione utente persistente prima del rendering
+      restorePersistentSession();
+
+      // 2. Inizializza il widget Netlify Identity
+      initNetlifyIdentity();
+
+      // 3. Carica i giochi salvati localmente
+      const savedGames = localStorage.getItem(STORAGE_KEY_GAMES);
+      if (savedGames) {
+        try {
+          state.games = JSON.parse(savedGames);
+        } catch(e) {
+          state.games = [...DEFAULT_GAMES];
+        }
+      } else {
+        state.games = [...DEFAULT_GAMES];
+      }
+
+      renderArcadeCatalog();
+      initStudioEditor();
+
+      // 4. Sincronizza col cloud Supabase
+      if (supabaseClient) {
+        await syncGamesWithCloud();
+      }
+
+      document.addEventListener('click', (event) => {
+        const dropdown = document.getElementById('account-dropdown-menu');
+        const userBtn = document.getElementById('user-profile-btn');
+        if (dropdown && !dropdown.classList.contains('hidden')) {
+          if (!dropdown.contains(event.target) && !userBtn.contains(event.target)) {
+            dropdown.classList.add('hidden');
+          }
+        }
+      });
+
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'PLAYCODE_CONSOLE_LOG') {
+          appendConsoleLog(event.data.message);
+        }
+      });
+    }
+
+    function saveGamesToLocalStorage() {
+      localStorage.setItem(STORAGE_KEY_GAMES, JSON.stringify(state.games));
+    }
+
+    /* ==========================================================
+       PERSISTENT SESSION MANAGEMENT (KEEP LOGGED IN PERMANENTLY)
+       ========================================================== */
+    function restorePersistentSession() {
+      try {
+        const cached = localStorage.getItem(STORAGE_KEY_AUTH_USER);
+        if (cached) {
+          state.currentUser = JSON.parse(cached);
+          updateAuthUI();
+          return;
+        }
+
+        const gotrueUserRaw = localStorage.getItem('gotrue.user');
+        if (gotrueUserRaw) {
+          const gotrueUser = JSON.parse(gotrueUserRaw);
+          if (gotrueUser && gotrueUser.id) {
+            setNetlifyUserSession(gotrueUser, false);
+          }
+        }
+      } catch (err) {
+        console.warn("Errore ripristino sessione persistente:", err);
+      }
+    }
+
+    function setNetlifyUserSession(netlifyUser, notify = false) {
+      if (!netlifyUser) return;
+
+      const devName = (netlifyUser.user_metadata && netlifyUser.user_metadata.full_name) 
+        ? netlifyUser.user_metadata.full_name 
+        : (netlifyUser.email ? netlifyUser.email.split('@')[0] : 'Sviluppatore');
+
+      state.currentUser = {
+        id: netlifyUser.id,
+        email: netlifyUser.email || '',
+        username: devName,
+        raw: netlifyUser
+      };
+
+      try {
+        localStorage.setItem(STORAGE_KEY_AUTH_USER, JSON.stringify(state.currentUser));
+      } catch (e) {}
+
+      updateAuthUI();
+
+      if (notify) {
+        showToast(`Bentornato, ${state.currentUser.username}!`, "success");
+      }
+    }
+
+    /* ==========================================================
+       NETLIFY IDENTITY (LOGIN / SIGNUP)
+       ========================================================== */
+    function initNetlifyIdentity() {
+      if (!window.netlifyIdentity) return;
+
+      const initialUser = window.netlifyIdentity.currentUser();
+      if (initialUser) {
+        setNetlifyUserSession(initialUser, false);
+      }
+
+      window.netlifyIdentity.on('init', (user) => {
+        if (user) {
+          setNetlifyUserSession(user, false);
+        } else if (!state.currentUser) {
+          state.currentUser = null;
+          updateAuthUI();
+        }
+      });
+
+      window.netlifyIdentity.on('login', (user) => {
+        setNetlifyUserSession(user, true);
+        window.netlifyIdentity.close();
+        if (!document.getElementById('view-mygames').classList.contains('hidden')) {
+          renderMyGamesDashboard();
+        }
+      });
+
+      window.netlifyIdentity.on('logout', () => {
+        clearUserSession();
+        showToast("Disconnessione completata", "info");
+        navigateTo('arcade');
+      });
+    }
+
+    function clearUserSession() {
+      state.currentUser = null;
+      try {
+        localStorage.removeItem(STORAGE_KEY_AUTH_USER);
+        localStorage.removeItem('gotrue.user');
+      } catch (e) {}
+      updateAuthUI();
+    }
+
+    function openNetlifyAuth(tab = 'login') {
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.open(tab);
+      } else {
+        showToast("Caricamento widget Netlify in corso...", "info");
+      }
+    }
+
+    function logoutNetlifyUser() {
+      clearUserSession();
+      if (window.netlifyIdentity) {
+        try {
+          window.netlifyIdentity.logout();
+        } catch (e) {
+          console.warn("Netlify logout warning:", e);
+        }
+      }
+      showToast("Disconnessione completata", "info");
+      navigateTo('arcade');
+    }
+
+    function updateAuthUI() {
+      const guestControls = document.getElementById('auth-guest-controls');
+      const userControls = document.getElementById('auth-user-controls');
+      const userDisplayName = document.getElementById('user-display-name');
+      const userAvatar = document.getElementById('user-avatar');
+      const menuEmail = document.getElementById('account-menu-email');
+      const studioAuthorInput = document.getElementById('studio-game-author');
+
+      if (state.currentUser) {
+        if (guestControls) guestControls.classList.add('hidden');
+        if (userControls) userControls.classList.remove('hidden');
+        if (userDisplayName) userDisplayName.innerText = state.currentUser.username;
+        if (userAvatar) userAvatar.innerText = state.currentUser.username.charAt(0).toUpperCase();
+        if (menuEmail) menuEmail.innerText = state.currentUser.email || 'developer';
+        if (studioAuthorInput) studioAuthorInput.value = state.currentUser.username;
+      } else {
+        if (guestControls) guestControls.classList.remove('hidden');
+        if (userControls) userControls.classList.add('hidden');
+        if (studioAuthorInput && (studioAuthorInput.value === 'Sviluppatore' || !studioAuthorInput.value)) {
+          studioAuthorInput.value = 'Anonimo';
+        }
+      }
+    }
+
+    function toggleAccountMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('account-dropdown-menu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    /* ==========================================================
+       SUPABASE SYNC LOGIC
+       ========================================================== */
+    async function syncGamesWithCloud(notifyUser = false) {
+      if (!supabaseClient) return;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('games')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Errore fetch Cloud:", error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const cloudGames = data.map(g => ({
+            id: g.id,
+            title: g.title,
+            author: g.author,
+            authorId: g.author_id,
+            category: g.category || 'Arcade',
+            platform: g.platform || 'both',
+            emoji: g.emoji || '🎮',
+            description: g.description || '',
+            plays: g.plays || 0,
+            isPublished: g.is_published,
+            updatedAt: g.updated_at || new Date().toISOString().split('T')[0],
+            html: g.html,
+            css: g.css || '',
+            js: g.js || ''
+          }));
+
+          const merged = [...cloudGames];
+          state.games.forEach(localG => {
+            if (!localG.isPublished && !merged.find(m => m.id === localG.id)) {
+              merged.push(localG);
+            }
+          });
+
+          state.games = merged;
+          saveGamesToLocalStorage();
+          renderArcadeCatalog();
+          if (!document.getElementById('view-mygames').classList.contains('hidden')) {
+            renderMyGamesDashboard();
+          }
+          if (notifyUser) showToast("Catalogo sincronizzato col Database Cloud!", "success");
+        } else {
+          await uploadDefaultGamesToCloud();
+        }
+      } catch (e) {
+        console.error("Errore sync Supabase:", e);
+      }
+    }
+
+    async function uploadDefaultGamesToCloud() {
+      if (!supabaseClient) return;
+      try {
+        const payload = DEFAULT_GAMES.map(g => ({
+          id: g.id,
+          title: g.title,
+          author: g.author,
+          author_id: g.authorId,
+          category: g.category,
+          platform: g.platform || 'both',
+          emoji: g.emoji,
+          description: g.description,
+          plays: g.plays,
+          is_published: true,
+          updated_at: g.updatedAt,
+          html: g.html,
+          css: g.css,
+          js: g.js
+        }));
+
+        await supabaseClient.from('games').upsert(payload);
+      } catch(e) {
+        console.warn("Upload default fallito:", e);
+      }
+    }
+
+    async function saveGameToCloud(game) {
+      if (!supabaseClient) return false;
+
+      try {
+        const payload = {
+          id: game.id,
+          title: game.title,
+          author: game.author,
+          author_id: game.authorId || (state.currentUser ? state.currentUser.id : 'anon'),
+          category: game.category,
+          platform: game.platform || 'both',
+          emoji: game.emoji,
+          description: game.description,
+          plays: game.plays || 0,
+          is_published: game.isPublished,
+          updated_at: game.updatedAt,
+          html: game.html,
+          css: game.css,
+          js: game.js
+        };
+
+        const { error } = await supabaseClient.from('games').upsert([payload]);
+        if (error) {
+          console.error("Errore salvataggio Supabase:", error);
+          return false;
+        }
+        return true;
+      } catch(e) {
+        console.error("Eccezione salvataggio Supabase:", e);
+        return false;
+      }
+    }
+
+    async function deleteGameFromCloud(gameId) {
+      if (!supabaseClient) return;
+      try {
+        await supabaseClient.from('games').delete().eq('id', gameId);
+      } catch(e) {
+        console.error("Errore cancellazione gioco Supabase:", e);
+      }
+    }
+
+    /* ==========================================================
+       NAVIGATION & ROUTING (CON CONTROLLO ACCESSO STUDIO)
+       ========================================================== */
+    function handleStudioNavigation(targetGameId = null) {
+      if (!state.currentUser) {
+        showToast("Per accedere allo Studio Sviluppatore devi prima autenticarti", "info");
+        openNetlifyAuth('login');
+        return;
+      }
+
+      if (targetGameId) {
+        inspectGameInStudio(targetGameId);
+      } else {
+        navigateTo('studio');
+      }
+    }
+
+    function navigateTo(viewName) {
+      const views = ['arcade', 'studio', 'mygames'];
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        const navBtn = document.getElementById(`nav-${v}`);
+        if (el) el.classList.add('hidden');
+        if (navBtn) {
+          navBtn.classList.remove('text-cyan-400', 'bg-cyan-950/40', 'border', 'border-cyan-800/40');
+          navBtn.classList.add('text-slate-300');
+        }
+      });
+
+      const targetView = document.getElementById(`view-${viewName}`);
+      const targetBtn = document.getElementById(`nav-${viewName}`);
+      if (targetView) targetView.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.classList.add('text-cyan-400', 'bg-cyan-950/40', 'border', 'border-cyan-800/40');
+        targetBtn.classList.remove('text-slate-300');
+      }
+
+      if (viewName === 'arcade') {
+        renderArcadeCatalog();
+      } else if (viewName === 'studio') {
+        setTimeout(() => {
+          updateStudioBoxPreview();
+        }, 50);
+      } else if (viewName === 'mygames') {
+        renderMyGamesDashboard();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ==========================================================
+       HELPERS FOR PLATFORM BADGES
+       ========================================================== */
+    function getPlatformBadge(platform) {
+      const p = platform || 'both';
+      if (p === 'pc') {
+        return `<span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center" title="Ottimizzato per PC (Tastiera/Mouse)"><i class="fa-solid fa-desktop mr-1"></i>PC</span>`;
+      } else if (p === 'mobile') {
+        return `<span class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center" title="Ottimizzato per Mobile (Touch)"><i class="fa-solid fa-mobile-screen mr-1"></i>Mobile</span>`;
+      }
+      return `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center" title="Compatibile con PC e Mobile"><i class="fa-solid fa-laptop mr-1"></i><i class="fa-solid fa-mobile-screen mr-1"></i>PC & Mobile</span>`;
+    }
+
+    /* ==========================================================
+       ARCADE CATALOG
+       ========================================================== */
+    function renderArcadeCatalog() {
+      const grid = document.getElementById('games-grid');
+      const noGames = document.getElementById('no-games-msg');
+      if (!grid) return;
+
+      const filtered = state.games.filter(g => {
+        if (!g.isPublished) return false;
+        
+        const matchesCategory = state.activeFilter === 'all' || g.category === state.activeFilter;
+        
+        const gPlatform = g.platform || 'both';
+        let matchesPlatform = true;
+        if (state.activePlatformFilter === 'pc') {
+          matchesPlatform = (gPlatform === 'pc' || gPlatform === 'both');
+        } else if (state.activePlatformFilter === 'mobile') {
+          matchesPlatform = (gPlatform === 'mobile' || gPlatform === 'both');
+        }
+
+        const query = state.searchQuery.toLowerCase();
+        const matchesSearch = g.title.toLowerCase().includes(query) || 
+                              g.author.toLowerCase().includes(query) ||
+                              (g.description && g.description.toLowerCase().includes(query));
+
+        return matchesCategory && matchesPlatform && matchesSearch;
+      });
+
+      grid.innerHTML = '';
+      if (filtered.length === 0) {
+        noGames.classList.remove('hidden');
+        return;
+      }
+      noGames.classList.add('hidden');
+
+      filtered.forEach(game => {
+        const card = document.createElement('div');
+        card.className = "bg-arcade-surface border border-arcade-border rounded-2xl overflow-hidden hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 flex flex-col group";
+
+        card.innerHTML = `
+          <div class="h-40 bg-gradient-to-br from-slate-900 to-arcade-card relative flex items-center justify-center border-b border-arcade-border group-hover:from-slate-800 transition">
+            <span class="text-6xl filter drop-shadow-lg group-hover:scale-110 transition duration-300 select-none">${game.emoji || '🎮'}</span>
+            
+            <div class="absolute top-3 left-3 flex items-center space-x-1.5">
+              <span class="bg-arcade-dark/80 backdrop-blur-sm border border-slate-700 text-slate-300 text-[10px] font-mono px-2 py-0.5 rounded-full">
+                ${game.category}
+              </span>
+              ${getPlatformBadge(game.platform)}
+            </div>
+
+            <div class="absolute top-3 right-3 bg-arcade-dark/80 backdrop-blur-sm border border-slate-700 text-emerald-400 text-[11px] font-mono px-2 py-0.5 rounded-full flex items-center space-x-1">
+              <i class="fa-solid fa-play text-[9px]"></i>
+              <span>${game.plays || 0}</span>
+            </div>
+          </div>
+
+          <div class="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-lg text-white group-hover:text-cyan-400 transition mb-1 leading-snug">${escapeHtml(game.title)}</h3>
+              <div class="text-xs text-slate-400 mb-3 flex items-center space-x-1">
+                <span>di</span>
+                <span class="font-medium text-slate-300">${escapeHtml(game.author || 'Anonimo')}</span>
+              </div>
+              <p class="text-slate-400 text-xs line-clamp-2 leading-relaxed mb-4">${escapeHtml(game.description || 'Nessuna descrizione disponibile.')}</p>
+            </div>
+
+            <div class="flex items-center space-x-2 pt-2 border-t border-arcade-border/50">
+              <button onclick="openPlayModal('${game.id}')" class="flex-1 py-2 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-arcade-dark font-bold text-xs flex items-center justify-center shadow-md shadow-cyan-500/20 transition">
+                <i class="fa-solid fa-play mr-2"></i>Gioca Fullscreen
+              </button>
+              <button onclick="handleStudioNavigation('${game.id}')" title="Apri nello Studio" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-arcade-border text-xs transition">
+                <i class="fa-solid fa-code"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterGames() {
+      state.searchQuery = document.getElementById('arcade-search').value;
+      renderArcadeCatalog();
+    }
+
+    function setCategoryFilter(cat) {
+      state.activeFilter = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        if (btn.getAttribute('data-cat') === cat) {
+          btn.className = "cat-pill active-cat px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 whitespace-nowrap transition";
+        } else {
+          btn.className = "cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-arcade-surface text-slate-400 hover:text-white border border-arcade-border whitespace-nowrap transition";
+        }
+      });
+      renderArcadeCatalog();
+    }
+
+    function setPlatformFilter(plat) {
+      state.activePlatformFilter = plat;
+      document.querySelectorAll('.plat-pill').forEach(btn => {
+        if (btn.getAttribute('data-plat') === plat) {
+          btn.className = "plat-pill active-plat px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition";
+        } else {
+          btn.className = "plat-pill px-2.5 py-1 rounded-lg text-xs font-semibold bg-transparent text-slate-400 hover:text-white transition";
+        }
+      });
+      renderArcadeCatalog();
+    }
+
+    /* ==========================================================
+       FULLSCREEN EXECUTION ENGINE
+       ========================================================== */
+    function updateResolutionBadge() {
+      const w = window.innerWidth || screen.width;
+      const h = window.innerHeight || screen.height;
+      const ratio = (w / h).toFixed(2);
+      const badge = document.getElementById('modal-resolution-badge');
+      if (badge) {
+        badge.innerText = `${w}×${h} (${ratio}:1)`;
+      }
+    }
+
+    async function openPlayModal(gameId) {
+      const game = state.games.find(g => g.id === gameId);
+      if (!game) return;
+
+      state.activeModalGame = game;
+      game.plays = (game.plays || 0) + 1;
+      saveGamesToLocalStorage();
+
+      if (supabaseClient) {
+        saveGameToCloud(game);
+      }
+
+      document.getElementById('modal-game-title').innerText = game.title;
+      document.getElementById('modal-game-author').innerText = game.author || 'Anonimo';
+      document.getElementById('modal-game-emoji').innerText = game.emoji || '🎮';
+      
+      const platBadge = document.getElementById('modal-platform-badge');
+      if (platBadge) {
+        const p = game.platform || 'both';
+        platBadge.innerText = (p === 'pc') ? '💻 PC' : (p === 'mobile' ? '📱 Mobile' : '💻📱 PC & Mobile');
+      }
+      
+      updateResolutionBadge();
+
+      injectGameCode('modal-game-frame', game.html, game.css, game.js);
+      
+      const modal = document.getElementById('play-modal');
+      modal.classList.remove('hidden');
+
+      enableDeviceFullscreen();
+    }
+
+    function reloadModalGame() {
+      if (state.activeModalGame) {
+        injectGameCode('modal-game-frame', state.activeModalGame.html, state.activeModalGame.css, state.activeModalGame.js);
+      }
+    }
+
+    function closePlayModal() {
+      if (document.fullscreenElement) {
+        try { document.exitFullscreen(); } catch (e) {}
+      }
+      const modal = document.getElementById('play-modal-card');
+      const header = document.getElementById('modal-header-bar');
+      const floatExitBtn = document.getElementById('floating-exit-fs-btn');
+      
+      modal.classList.remove('fullscreen-modal-container');
+      header.classList.remove('hidden');
+      floatExitBtn.classList.add('hidden');
+
+      document.getElementById('play-modal').classList.add('hidden');
+      const frame = document.getElementById('modal-game-frame');
+      frame.removeAttribute('srcdoc');
+      frame.src = 'about:blank';
+      state.activeModalGame = null;
+      renderArcadeCatalog();
+    }
+
+    function enableDeviceFullscreen() {
+      const modal = document.getElementById('play-modal-card');
+      const header = document.getElementById('modal-header-bar');
+      const floatExitBtn = document.getElementById('floating-exit-fs-btn');
+      const fsWrapper = document.getElementById('modal-frame-wrapper');
+
+      modal.classList.add('fullscreen-modal-container');
+      header.classList.add('hidden');
+      floatExitBtn.classList.remove('hidden');
+
+      if (!document.fullscreenElement) {
+        const req = fsWrapper.requestFullscreen || fsWrapper.webkitRequestFullscreen || fsWrapper.mozRequestFullScreen || fsWrapper.msRequestFullscreen;
+        if (req) {
+          req.call(fsWrapper).catch(() => {});
+        }
+      }
+      updateResolutionBadge();
+    }
+
+    function toggleModalDeviceFullscreen() {
+      const modal = document.getElementById('play-modal-card');
+      const header = document.getElementById('modal-header-bar');
+      const floatExitBtn = document.getElementById('floating-exit-fs-btn');
+
+      if (modal.classList.contains('fullscreen-modal-container') && header.classList.contains('hidden')) {
+        header.classList.remove('hidden');
+        floatExitBtn.classList.add('hidden');
+      } else {
+        enableDeviceFullscreen();
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      const floatExitBtn = document.getElementById('floating-exit-fs-btn');
+      const header = document.getElementById('modal-header-bar');
+
+      if (!document.fullscreenElement && floatExitBtn && !floatExitBtn.classList.contains('hidden')) {
+        header.classList.remove('hidden');
+        floatExitBtn.classList.add('hidden');
+      }
+      updateResolutionBadge();
+    });
+
+    window.addEventListener('resize', updateResolutionBadge);
+
+    /* ==========================================================
+       STUDIO & CODE EDITOR
+       ========================================================== */
+    function initStudioEditor() {
+      loadTemplate('canvas');
+      const authorInput = document.getElementById('studio-game-author');
+      if (authorInput) {
+        authorInput.value = state.currentUser ? state.currentUser.username : 'Sviluppatore';
+      }
+    }
+
+    function switchEditorTab(tab) {
+      state.currentTab = tab;
+      const tabs = ['html', 'css', 'js'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const input = document.getElementById(`code-${t}`);
+        if (t === tab) {
+          btn.className = "editor-tab active-editor-tab px-3 py-1.5 rounded-t-lg text-xs font-mono font-semibold bg-slate-950 text-cyan-400 border-t-2 border-cyan-400";
+          input.classList.remove('hidden');
+        } else {
+          btn.className = "editor-tab px-3 py-1.5 rounded-t-lg text-xs font-mono font-semibold text-slate-400 hover:text-white";
+          input.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('editor-active-indicator').innerText = `Lingua attiva: ${tab.toUpperCase()}`;
+    }
+
+    function handleCodeInput() {
+      const autoRun = document.getElementById('auto-run-toggle').checked;
+      if (autoRun) {
+        debounce(updateStudioBoxPreview, 500)();
+      }
+    }
+
+    let debounceTimer;
+    function debounce(func, timeout = 300) {
+      return (...args) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => { func.apply(this, args); }, timeout);
+      };
+    }
+
+    function buildGameHTML(htmlContent, cssContent, jsContent) {
+      const consoleOverride = `
+        <script>
+          (function() {
+            const oldLog = console.log;
+            const oldError = console.error;
+            console.log = function(...args) {
+              try {
+                window.parent.postMessage({
+                  type: 'PLAYCODE_CONSOLE_LOG',
+                  message: args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ')
+                }, '*');
+              } catch(e) {}
+              oldLog.apply(console, args);
+            };
+            console.error = function(...args) {
+              try {
+                window.parent.postMessage({
+                  type: 'PLAYCODE_CONSOLE_LOG',
+                  message: '❌ ' + args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ')
+                }, '*');
+              } catch(e) {}
+              oldError.apply(console, args);
+            };
+          })();
+        <\/script>
+      `;
+
+      const dynamicResolutionScript = `
+        <script>
+          function adaptGameCanvas() {
+            const canvases = document.querySelectorAll('canvas');
+            canvases.forEach(function(c) {
+              if (c.getAttribute('data-fixed-res') === 'true') return;
+              c.style.maxWidth = '100vw';
+              c.style.maxHeight = '100dvh';
+              c.style.objectFit = 'contain';
+            });
+          }
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', adaptGameCanvas);
+          } else {
+            adaptGameCanvas();
+          }
+          window.addEventListener('resize', adaptGameCanvas);
+        <\/script>
+      `;
+
+      return `<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      max-width: 100vw;
+      max-height: 100dvh;
+      object-fit: contain;
+    }
+    ${cssContent || ''}
+  </style>
+  ${consoleOverride}
+  ${dynamicResolutionScript}
+</head>
+<body>
+  ${htmlContent || ''}
+  <script>
+    window.addEventListener('error', function(e) {
+      console.error(e.message + ' (linea ' + e.lineno + ')');
+    });
+    try {
+      ${jsContent || ''}
+    } catch (err) {
+      console.error("Errore Runtime: " + err.message);
+    }
+  <\/script>
+</body>
+</html>`;
+    }
+
+    function injectGameCode(frameId, html, css, js) {
+      const container = (frameId === 'studio-game-frame') 
+        ? document.getElementById('studio-viewport-container') 
+        : document.getElementById('modal-frame-wrapper');
+      
+      let frame = document.getElementById(frameId);
+      if (!frame || !container) return;
+
+      const fullSource = buildGameHTML(html, css, js);
+
+      try {
+        const newFrame = document.createElement('iframe');
+        newFrame.id = frameId;
+        newFrame.className = frame.className;
+        newFrame.title = frame.title;
+        newFrame.setAttribute('sandbox', 'allow-scripts allow-modals allow-pointer-lock');
+        newFrame.setAttribute('allow', 'fullscreen; autoplay; pointer-lock');
+        newFrame.setAttribute('allowfullscreen', 'true');
+        
+        container.replaceChild(newFrame, frame);
+        newFrame.srcdoc = fullSource;
+
+        const pill = document.getElementById('preview-status-pill');
+        if (pill && frameId === 'studio-game-frame') {
+          pill.innerText = 'Ricaricato';
+          pill.className = "text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-800/40";
+          setTimeout(() => {
+            pill.innerText = 'Attivo';
+            pill.className = "text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/40";
+          }, 1000);
+        }
+      } catch (e) {
+        console.warn("Fallback caricamento iframe:", e);
+        frame.srcdoc = fullSource;
+      }
+    }
+
+    function updateStudioBoxPreview() {
+      const htmlEl = document.getElementById('code-html');
+      const cssEl = document.getElementById('code-css');
+      const jsEl = document.getElementById('code-js');
+      if (!htmlEl || !cssEl || !jsEl) return;
+
+      const html = htmlEl.value;
+      const css = cssEl.value;
+      const js = jsEl.value;
+
+      injectGameCode('studio-game-frame', html, css, js);
+    }
+
+    function executeCodeFullscreen() {
+      const title = document.getElementById('studio-game-title').value.trim() || 'Mio Nuovo Gioco';
+      const category = document.getElementById('studio-game-category').value;
+      const platform = document.getElementById('studio-game-platform').value;
+      const desc = document.getElementById('studio-game-desc').value;
+      const authorVal = document.getElementById('studio-game-author').value.trim() || (state.currentUser ? state.currentUser.username : 'Sviluppatore');
+      const html = document.getElementById('code-html').value;
+      const css = document.getElementById('code-css').value;
+      const js = document.getElementById('code-js').value;
+
+      state.activeModalGame = {
+        id: 'studio-preview-fullscreen',
+        title: title,
+        author: authorVal,
+        category: category,
+        platform: platform,
+        emoji: state.selectedEmoji || '🚀',
+        description: desc,
+        plays: '-',
+        html,
+        css,
+        js
+      };
+
+      document.getElementById('modal-game-title').innerText = title;
+      document.getElementById('modal-game-author').innerText = authorVal;
+      document.getElementById('modal-game-emoji').innerText = state.selectedEmoji || '🚀';
+      
+      const platBadge = document.getElementById('modal-platform-badge');
+      if (platBadge) {
+        platBadge.innerText = (platform === 'pc') ? '💻 PC' : (platform === 'mobile' ? '📱 Mobile' : '💻📱 PC & Mobile');
+      }
+
+      updateResolutionBadge();
+
+      injectGameCode('modal-game-frame', html, css, js);
+      document.getElementById('play-modal').classList.remove('hidden');
+
+      enableDeviceFullscreen();
+    }
+
+    function toggleConsoleDrawer() {
+      const drawer = document.getElementById('studio-console-drawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    function clearConsoleLog() {
+      state.consoleLogs = [];
+      document.getElementById('studio-console-logs').innerHTML = '<div class="text-slate-600 italic">Log puliti.</div>';
+      document.getElementById('console-count').innerText = '0';
+    }
+
+    function appendConsoleLog(msg) {
+      state.consoleLogs.push(msg);
+      const logContainer = document.getElementById('studio-console-logs');
+      const countEl = document.getElementById('console-count');
+      countEl.innerText = state.consoleLogs.length;
+
+      const line = document.createElement('div');
+      line.className = "text-slate-300 font-mono text-[11px] border-b border-slate-900 pb-0.5";
+      line.innerText = `> ${msg}`;
+      logContainer.appendChild(line);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function loadTemplate(type) {
+      if (type === 'canvas') {
+        document.getElementById('studio-game-title').value = "Particelle Spaziali 2D";
+        document.getElementById('studio-game-platform').value = "both";
+        document.getElementById('studio-game-desc').value = "Tocca lo schermo o muovi il cursore per interagire con le particelle.";
+        document.getElementById('code-html').value = `<canvas id="c" width="800" height="600"></canvas>`;
+        document.getElementById('code-css').value = `body {
+  margin: 0;
+  background: #020617;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+canvas {
+  background: #080e1a;
+  border: 2px solid #06b6d4;
+  border-radius: 12px;
+  box-shadow: 0 0 35px rgba(6, 182, 212, 0.4);
+  max-width: 95vw;
+  max-height: 95vh;
+}`;
+        document.getElementById('code-js').value = `const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+
+let mouse = { x: c.width / 2, y: c.height / 2 };
+
+function updateMouse(clientX, clientY) {
+  const rect = c.getBoundingClientRect();
+  const scaleX = c.width / rect.width;
+  const scaleY = c.height / rect.height;
+  mouse.x = (clientX - rect.left) * scaleX;
+  mouse.y = (clientY - rect.top) * scaleY;
+}
+
+c.addEventListener('mousemove', e => updateMouse(e.clientX, e.clientY));
+c.addEventListener('touchmove', e => {
+  e.preventDefault();
+  updateMouse(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: false });
+
+const particles = Array.from({ length: 60 }, () => ({
+  x: Math.random() * c.width,
+  y: Math.random() * c.height,
+  vx: (Math.random() - 0.5) * 3,
+  vy: (Math.random() - 0.5) * 3,
+  size: Math.random() * 5 + 2
+}));
+
+function animate() {
+  ctx.fillStyle = 'rgba(8, 14, 26, 0.2)';
+  ctx.fillRect(0, 0, c.width, c.height);
+
+  particles.forEach(p => {
+    p.x += (mouse.x - p.x) * 0.03 + p.vx;
+    p.y += (mouse.y - p.y) * 0.03 + p.vy;
+
+    ctx.fillStyle = '#06b6d4';
+    ctx.shadowColor = '#06b6d4';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();`;
+      } else if (type === 'snake') {
+        const snakeGame = DEFAULT_GAMES[0];
+        document.getElementById('studio-game-title').value = "Copia Snake Retrò";
+        document.getElementById('studio-game-platform').value = "both";
+        document.getElementById('studio-game-desc').value = snakeGame.description;
+        document.getElementById('code-html').value = snakeGame.html;
+        document.getElementById('code-css').value = snakeGame.css;
+        document.getElementById('code-js').value = snakeGame.js;
+      } else if (type === 'clicker') {
+        document.getElementById('studio-game-title').value = "Cyber Clicker Quest";
+        document.getElementById('studio-game-platform').value = "both";
+        document.getElementById('studio-game-desc').value = "Clicca sul nucleo per guadagnare punti e potenziare il generatore!";
+        document.getElementById('code-html').value = `<div class="card">
+  <h2>Crediti: <span id="coins">0</span></h2>
+  <button id="tapBtn">⚡ CLICCA IL NUCLEO</button>
+  <button id="upgradeBtn" disabled>Compra Booster (+1 per click) - Costo: 20</button>
+</div>`;
+        document.getElementById('code-css').value = `body {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background: #0f172a;
+  color: #fff;
+  font-family: sans-serif;
+}
+.card {
+  text-align: center;
+  padding: 30px;
+  background: #1e293b;
+  border-radius: 20px;
+  border: 1px solid #334155;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  max-width: 90vw;
+}
+button {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  margin-top: 15px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+#tapBtn {
+  background: #ec4899;
+  color: white;
+  font-size: 16px;
+  transition: transform 0.1s;
+}
+#tapBtn:active { transform: scale(0.95); }
+#upgradeBtn {
+  background: #3b82f6;
+  color: white;
+  font-size: 12px;
+}
+#upgradeBtn:disabled {
+  background: #475569;
+  opacity: 0.5;
+  cursor: not-allowed;
+}`;
+        document.getElementById('code-js').value = `let coins = 0;
+let power = 1;
+let cost = 20;
+
+const coinsEl = document.getElementById('coins');
+const tapBtn = document.getElementById('tapBtn');
+const upgradeBtn = document.getElementById('upgradeBtn');
+
+tapBtn.addEventListener('click', () => {
+  coins += power;
+  updateUI();
+});
+
+upgradeBtn.addEventListener('click', () => {
+  if (coins >= cost) {
+    coins -= cost;
+    power++;
+    cost = Math.floor(cost * 1.5);
+    upgradeBtn.innerText = "Compra Booster (+1 per click) - Costo: " + cost;
+    updateUI();
+  }
+});
+
+function updateUI() {
+  coinsEl.innerText = coins;
+  upgradeBtn.disabled = coins < cost;
+}`;
+      } else {
+        document.getElementById('studio-game-title').value = "Nuovo Gioco";
+        document.getElementById('studio-game-platform').value = "both";
+        document.getElementById('studio-game-desc').value = "";
+        document.getElementById('code-html').value = `<h1>Ciao Mondo</h1>`;
+        document.getElementById('code-css').value = `body { color: white; background: #000; font-family: sans-serif; text-align: center; }`;
+        document.getElementById('code-js').value = `console.log("Gioco pronto!");`;
+      }
+      setTimeout(updateStudioBoxPreview, 30);
+    }
+
+    function toggleEmojiPicker() {
+      const pop = document.getElementById('emoji-picker-popover');
+      pop.classList.toggle('hidden');
+    }
+    function selectEmoji(e) {
+      state.selectedEmoji = e;
+      document.getElementById('studio-icon-btn').innerText = e;
+      document.getElementById('emoji-picker-popover').classList.add('hidden');
+    }
+
+    async function saveCurrentDraft() {
+      const title = document.getElementById('studio-game-title').value.trim() || 'Senza Titolo';
+      const category = document.getElementById('studio-game-category').value;
+      const platform = document.getElementById('studio-game-platform').value;
+      const desc = document.getElementById('studio-game-desc').value;
+      const authorVal = document.getElementById('studio-game-author').value.trim() || (state.currentUser ? state.currentUser.username : 'Sviluppatore');
+      const authorId = state.currentUser ? state.currentUser.id : 'anon-creator';
+      const html = document.getElementById('code-html').value;
+      const css = document.getElementById('code-css').value;
+      const js = document.getElementById('code-js').value;
+
+      let game;
+      if (state.currentEditingGameId) {
+        game = state.games.find(g => g.id === state.currentEditingGameId);
+        if (game) {
+          game.title = title;
+          game.author = authorVal;
+          game.authorId = authorId;
+          game.category = category;
+          game.platform = platform;
+          game.description = desc;
+          game.html = html;
+          game.css = css;
+          game.js = js;
+          game.emoji = state.selectedEmoji;
+          game.updatedAt = new Date().toISOString().split('T')[0];
+        }
+      } else {
+        game = {
+          id: 'game-' + Date.now(),
+          title: title,
+          author: authorVal,
+          authorId: authorId,
+          category: category,
+          platform: platform,
+          emoji: state.selectedEmoji,
+          description: desc,
+          plays: 0,
+          isPublished: false,
+          updatedAt: new Date().toISOString().split('T')[0],
+          html: html,
+          css: css,
+          js: js
+        };
+        state.games.unshift(game);
+        state.currentEditingGameId = game.id;
+      }
+
+      saveGamesToLocalStorage();
+      showToast("Bozza salvata con successo!", "success");
+      return game;
+    }
+
+    async function publishGameFromStudio() {
+      const game = await saveCurrentDraft();
+      if (!game) return;
+
+      game.isPublished = true;
+      saveGamesToLocalStorage();
+
+      if (supabaseClient) {
+        const uploaded = await saveGameToCloud(game);
+        if (uploaded) {
+          showToast("🚀 Gioco pubblicato nel Cloud! Visibile a tutti sul tuo sito!", "success");
+        } else {
+          showToast("🚀 Gioco pubblicato nel Catalogo!", "success");
+        }
+      } else {
+        showToast("🚀 Gioco pubblicato nel Catalogo!", "info");
+      }
+
+      renderArcadeCatalog();
+      navigateTo('arcade');
+    }
+
+    function createNewGameInStudio() {
+      if (!state.currentUser) {
+        showToast("Per creare un nuovo progetto devi prima autenticarti", "info");
+        openNetlifyAuth('login');
+        return;
+      }
+      state.currentEditingGameId = null;
+      loadTemplate('canvas');
+      navigateTo('studio');
+    }
+
+    function inspectGameInStudio(gameId) {
+      if (!state.currentUser) {
+        showToast("Per modificare i progetti devi prima autenticarti", "info");
+        openNetlifyAuth('login');
+        return;
+      }
+      const game = state.games.find(g => g.id === gameId);
+      if (!game) return;
+
+      state.currentEditingGameId = game.id;
+      document.getElementById('studio-game-title').value = game.title;
+      document.getElementById('studio-game-author').value = game.author || '';
+      document.getElementById('studio-game-category').value = game.category || 'Arcade';
+      document.getElementById('studio-game-platform').value = game.platform || 'both';
+      document.getElementById('studio-game-desc').value = game.description || '';
+      document.getElementById('code-html').value = game.html || '';
+      document.getElementById('code-css').value = game.css || '';
+      document.getElementById('code-js').value = game.js || '';
+      selectEmoji(game.emoji || '🎮');
+
+      navigateTo('studio');
+      setTimeout(updateStudioBoxPreview, 60);
+      showToast(`Caricato '${game.title}' nello studio`, "info");
+    }
+
+    /* ==========================================================
+       DASHBOARD "I MIEI GIOCHI"
+       ========================================================== */
+    function renderMyGamesDashboard() {
+      const container = document.getElementById('my-games-container');
+      if (!container) return;
+
+      const myGames = state.currentUser
+        ? state.games.filter(g => g.authorId === state.currentUser.id || g.author === state.currentUser.username)
+        : state.games.filter(g => g.authorId === 'anon-creator' || (!g.authorId && g.id.startsWith('game-')));
+
+      const totalCreated = myGames.length;
+      const totalPublished = myGames.filter(g => g.isPublished).length;
+      const totalPlays = myGames.reduce((acc, curr) => acc + (curr.plays || 0), 0);
+
+      document.getElementById('stat-total-games').innerText = totalCreated;
+      document.getElementById('stat-published-games').innerText = totalPublished;
+      document.getElementById('stat-total-plays').innerText = totalPlays;
+
+      if (myGames.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-16 bg-arcade-surface rounded-2xl border border-arcade-border">
+            <i class="fa-solid fa-gamepad text-4xl text-slate-600 mb-3"></i>
+            <h3 class="text-lg font-bold text-slate-300">Nessun gioco salvato nel tuo account</h3>
+            <p class="text-slate-500 text-sm mt-1 mb-4">Crea o pubblica un gioco dal compilatore per vederlo qui e nel Catalogo!</p>
+            <button onclick="createNewGameInStudio()" class="px-4 py-2 bg-cyan-500 text-arcade-dark font-bold text-xs rounded-xl shadow-md">Crea Nuovo Gioco</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      myGames.forEach(g => {
+        const item = document.createElement('div');
+        item.className = "bg-arcade-surface border border-arcade-border rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-slate-700 transition";
+
+        const statusBadge = g.isPublished 
+          ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center"><i class="fa-solid fa-globe mr-1"></i>Pubblicato nel Catalogo Globale</span>`
+          : `<span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center"><i class="fa-solid fa-pencil mr-1"></i>Bozza Privata</span>`;
+
+        const platformBadge = getPlatformBadge(g.platform);
+
+        item.innerHTML = `
+          <div class="flex items-center space-x-4">
+            <div class="w-14 h-14 rounded-xl bg-slate-900 border border-arcade-border flex items-center justify-center text-3xl flex-shrink-0">
+              ${g.emoji || '🎮'}
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h4 class="font-bold text-white text-base leading-snug">${escapeHtml(g.title)}</h4>
+                ${statusBadge}
+                ${platformBadge}
+              </div>
+              <div class="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>Autore: <strong class="text-cyan-400">${escapeHtml(g.author || 'Anonimo')}</strong></span>
+                <span>•</span>
+                <span>Categoria: <strong class="text-slate-300">${g.category}</strong></span>
+                <span>•</span>
+                <span>Partite: <strong class="text-emerald-400">${g.plays || 0}</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 self-end md:self-auto w-full md:w-auto justify-end pt-2 md:pt-0 border-t md:border-t-0 border-arcade-border/40">
+            <button onclick="inspectGameInStudio('${g.id}')" title="Modifica nello Studio" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-arcade-border flex items-center transition">
+              <i class="fa-solid fa-pen-to-square mr-1.5 text-cyan-400"></i>Modifica
+            </button>
+            <button onclick="openPlayModal('${g.id}')" title="Gioca Subito" class="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-arcade-dark text-xs font-bold flex items-center transition shadow-sm">
+              <i class="fa-solid fa-play mr-1.5"></i>Gioca Fullscreen
+            </button>
+            <button onclick="togglePublishStatus('${g.id}')" title="${g.isPublished ? 'Rimuovi dal Catalogo' : 'Pubblica per Tutti'}" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-arcade-border text-xs transition">
+              <i class="fa-solid ${g.isPublished ? 'fa-eye-slash text-amber-400' : 'fa-globe text-emerald-400'}"></i>
+            </button>
+            <button onclick="deleteGame('${g.id}')" title="Elimina Gioco" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 border border-arcade-border text-xs transition">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    async function togglePublishStatus(gameId) {
+      const game = state.games.find(g => g.id === gameId);
+      if (!game) return;
+
+      game.isPublished = !game.isPublished;
+      saveGamesToLocalStorage();
+
+      if (supabaseClient) {
+        if (game.isPublished) {
+          await saveGameToCloud(game);
+        } else {
+          await deleteGameFromCloud(game.id);
+        }
+      }
+
+      showToast(game.isPublished ? "Gioco pubblicato nel Catalogo!" : "Gioco rimosso dal Catalogo", "info");
+      renderMyGamesDashboard();
+      renderArcadeCatalog();
+    }
+
+    async function deleteGame(gameId) {
+      if (!confirm("Sei sicuro di voler eliminare definitivamente questo gioco?")) return;
+
+      if (supabaseClient) {
+        await deleteGameFromCloud(gameId);
+      }
+
+      state.games = state.games.filter(g => g.id !== gameId);
+      saveGamesToLocalStorage();
+
+      if (state.currentEditingGameId === gameId) {
+        state.currentEditingGameId = null;
+      }
+
+      showToast("Gioco eliminato", "info");
+      renderMyGamesDashboard();
+      renderArcadeCatalog();
+    }
+
+    /* ==========================================================
+       HELPERS & NOTIFICATIONS
+       ========================================================= */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      let borderClass = 'border-cyan-500/40 text-cyan-300';
+      let icon = 'fa-circle-info';
+      if (type === 'success') {
+        borderClass = 'border-emerald-500/40 text-emerald-300';
+        icon = 'fa-circle-check';
+      } else if (type === 'error') {
+        borderClass = 'border-rose-500/40 text-rose-300';
+        icon = 'fa-triangle-exclamation';
+      }
+
+      toast.className = `pointer-events-auto flex items-center space-x-3 bg-arcade-surface border ${borderClass} px-4 py-3 rounded-xl shadow-2xl text-xs font-medium transition-all duration-300 transform translate-y-2 opacity-0`;
+      toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${escapeHtml(message)}</span>`;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function escapeHtml(string) {
+      if (!string) return '';
+      return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

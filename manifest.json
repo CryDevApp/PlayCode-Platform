@@ -1,0 +1,27 @@
+{
+  "name": "PlayCode Arcade",
+  "short_name": "PlayCode",
+  "description": "Piattaforma aperta per creare, pubblicare e giocare a videogiochi HTML5 in fullscreen.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0d14",
+  "theme_color": "#0a0d14",
+  "lang": "it",
+  "categories": ["games", "entertainment", "developer tools"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='38' fill='%230a0d14'/%3E%3Crect x='10' y='10' width='172' height='172' rx='32' fill='url(%23grad)' stroke='%2306b6d4' stroke-width='4'/%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0' y1='0' x2='192' y2='192' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23121824'/%3E%3Cstop offset='1' stop-color='%23182133'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M60 84h72c11 0 20 9 20 20v22c0 11-9 20-20 20-7 0-13-4-17-9l-9-13H86l-9 13c-4 5-10 9-17 9-11 0-20-9-20-20v-22c0-11 9-20 20-20z' fill='%2306b6d4'/%3E%3Ccircle cx='68' cy='115' r='5' fill='%230a0d14'/%3E%3Ccircle cx='80' cy='103' r='5' fill='%230a0d14'/%3E%3Ccircle cx='56' cy='103' r='5' fill='%230a0d14'/%3E%3Ccircle cx='68' cy='91' r='5' fill='%230a0d14'/%3E%3Ccircle cx='124' cy='103' r='5' fill='%23ec4899'/%3E%3Ccircle cx='136' cy='115' r='5' fill='%2310b981'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230a0d14'/%3E%3Crect x='20' y='20' width='472' height='472' rx='84' fill='url(%23g512)' stroke='%2306b6d4' stroke-width='8'/%3E%3Cdefs%3E%3ClinearGradient id='g512' x1='0' y1='0' x2='512' y2='512' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23121824'/%3E%3Cstop offset='1' stop-color='%23182133'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M160 220h192c30 0 54 24 54 54v58c0 30-24 54-54 54-18 0-35-10-44-24l-24-34h-56l-24 34c-9 14-26 24-44 24-30 0-54-24-54-54v-58c0-30 24-54 54-54z' fill='%2306b6d4'/%3E%3Ccircle cx='180' cy='305' r='14' fill='%230a0d14'/%3E%3Ccircle cx='212' cy='273' r='14' fill='%230a0d14'/%3E%3Ccircle cx='148' cy='273' r='14' fill='%230a0d14'/%3E%3Ccircle cx='180' cy='241' r='14' fill='%230a0d14'/%3E%3Ccircle cx='332' cy='273' r='14' fill='%23ec4899'/%3E%3Ccircle cx='364' cy='305' r='14' fill='%2310b981'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
