@@ -23,12 +23,10 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Netlify Identity Widget -->
-  <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <!-- Supabase JS Client for Realtime Global Cloud Catalog -->
+  <!-- Supabase JS Client for Auth & Realtime Cloud Catalog -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <!-- Google Fonts: Inter & Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -61,7 +59,6 @@
   </script>
 
   <style>
-    /* Custom Scrollbars */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -87,7 +84,6 @@
       border: 0 !important;
     }
 
-    /* PWA safe area support (Notch, home indicator) */
     body {
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
@@ -144,31 +140,30 @@
         <!-- Cloud Online Status Pill -->
         <div class="px-2.5 py-1.5 rounded-xl border border-arcade-border text-xs flex items-center space-x-1.5 bg-slate-900/80">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="hidden sm:inline font-mono text-[11px] text-emerald-400 font-semibold">Cloud Connesso</span>
+          <span class="hidden sm:inline font-mono text-[11px] text-emerald-400 font-semibold">GitHub Cloud</span>
         </div>
 
-        <!-- Netlify Guest View (Login / Register via Netlify Identity) -->
+        <!-- GitHub Guest View (Login / Registrazione tramite GitHub) -->
         <div id="auth-guest-controls" class="flex items-center space-x-2">
-          <button onclick="openNetlifyAuth('login')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition flex items-center">
-            <i class="fa-solid fa-right-to-bracket mr-1.5 text-cyan-400"></i>Accedi
-          </button>
-          <button onclick="openNetlifyAuth('signup')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-arcade-dark transition shadow-sm shadow-cyan-500/20 flex items-center">
-            <i class="fa-solid fa-user-plus mr-1.5"></i>Registrati
+          <button onclick="loginWithGitHub()" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-slate-500 transition flex items-center shadow-md">
+            <i class="fa-brands fa-github text-base mr-2 text-white"></i>
+            <span>Accedi con GitHub</span>
           </button>
         </div>
 
-        <!-- Netlify Logged-in Dev View -->
+        <!-- GitHub Logged-in Dev View -->
         <div id="auth-user-controls" class="hidden relative flex items-center space-x-3">
           <div class="relative">
-            <button id="user-profile-btn" onclick="toggleAccountMenu(event)" title="Account Sviluppatore Netlify" class="flex items-center space-x-2.5 bg-arcade-card hover:bg-slate-800 border border-arcade-border hover:border-cyan-500/50 px-3 py-1.5 rounded-xl transition cursor-pointer">
+            <button id="user-profile-btn" onclick="toggleAccountMenu(event)" title="Profilo Sviluppatore GitHub" class="flex items-center space-x-2.5 bg-arcade-card hover:bg-slate-800 border border-arcade-border hover:border-cyan-500/50 px-3 py-1.5 rounded-xl transition cursor-pointer">
+              <img id="user-avatar-img" src="" alt="Avatar" class="w-7 h-7 rounded-lg object-cover border border-cyan-500/40 hidden">
               <div id="user-avatar" class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white uppercase shadow-sm">
-                N
+                G
               </div>
               <div class="text-left hidden sm:block">
                 <div id="user-display-name" class="text-xs font-bold leading-tight text-white max-w-[120px] truncate">Dev</div>
                 <div class="flex items-center space-x-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span class="text-[10px] text-cyan-400 font-mono">SVILUPPATORE</span>
+                  <i class="fa-brands fa-github text-[11px] text-slate-400"></i>
+                  <span class="text-[10px] text-cyan-400 font-mono">DEV GITHUB</span>
                 </div>
               </div>
               <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
@@ -177,8 +172,8 @@
             <!-- Dropdown Menu -->
             <div id="account-dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-60 bg-arcade-surface border border-arcade-border rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
               <div class="px-4 py-2 border-b border-arcade-border/70 mb-1">
-                <div class="text-[10px] font-mono text-slate-400 uppercase">Account:</div>
-                <div id="account-menu-email" class="text-xs font-semibold text-cyan-300 truncate">dev@arcade.com</div>
+                <div class="text-[10px] font-mono text-slate-400 uppercase">Account GitHub:</div>
+                <div id="account-menu-email" class="text-xs font-semibold text-cyan-300 truncate">@utente</div>
               </div>
               
               <button onclick="navigateTo('mygames'); toggleAccountMenu(event)" class="w-full text-left px-4 py-2.5 text-xs text-slate-200 hover:text-white hover:bg-slate-800/80 flex items-center transition">
@@ -187,7 +182,7 @@
               
               <div class="border-t border-arcade-border/70 my-1"></div>
               
-              <button onclick="logoutNetlifyUser(); toggleAccountMenu(event)" class="w-full text-left px-4 py-2.5 text-xs text-rose-400 hover:bg-rose-950/30 flex items-center transition">
+              <button onclick="logoutGitHubUser(); toggleAccountMenu(event)" class="w-full text-left px-4 py-2.5 text-xs text-rose-400 hover:bg-rose-950/30 flex items-center transition">
                 <i class="fa-solid fa-arrow-right-from-bracket mr-2.5"></i>Disconnetti
               </button>
             </div>
@@ -234,7 +229,7 @@
 
   <!-- iOS Specific Add to Home Screen Instructions Modal -->
   <div id="ios-install-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-    <div class="bg-arcade-surface border border-arcade-border rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200">
+    <div class="bg-arcade-surface border border-arcade-border rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
       <div class="w-14 h-14 mx-auto rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl border border-cyan-500/30">
         <i class="fa-brands fa-apple"></i>
       </div>
@@ -284,7 +279,7 @@
             Gioca, Sperimenta e <br><span class="bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">Crea i Tuoi Videogiochi</span>
           </h1>
           <p class="text-slate-400 text-sm sm:text-base leading-relaxed mb-2">
-            Tutti i giochi pubblicati su questa piattaforma sono salvati nel cloud e giocabili da chiunque nel mondo su qualsiasi dispositivo!
+            Tutti i giochi pubblicati sono salvati nel cloud e giocabili da chiunque nel mondo su qualsiasi dispositivo tramite GitHub Pages!
           </p>
         </div>
       </div>
@@ -294,7 +289,7 @@
         <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           <div class="relative flex-1 max-w-md">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
-            <input type="text" id="arcade-search" oninput="filterGames()" placeholder="Cerca giochi o autori..."
+            <input type="text" id="arcade-search" oninput="filterGames()" placeholder="Cerca giochi o sviluppatori..."
               class="w-full bg-arcade-surface border border-arcade-border rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
           </div>
 
@@ -342,7 +337,7 @@
       <div id="no-games-msg" class="hidden text-center py-16 bg-arcade-surface rounded-2xl border border-arcade-border">
         <i class="fa-solid fa-ghost text-4xl text-slate-600 mb-3"></i>
         <h3 class="text-lg font-bold text-slate-300">Nessun gioco trovato</h3>
-        <p class="text-slate-500 text-sm mt-1">Nessun gioco corrisponde ai filtri di ricerca e dispositivo correnti.</p>
+        <p class="text-slate-500 text-sm mt-1">Nessun gioco corrisponde ai filtri correnti.</p>
       </div>
     </section>
 
@@ -380,8 +375,8 @@
             </div>
 
             <!-- Author Field -->
-            <div class="w-32">
-              <input type="text" id="studio-game-author" value="Sviluppatore" placeholder="Tuo Nome Autore"
+            <div class="w-36">
+              <input type="text" id="studio-game-author" value="Sviluppatore GitHub" placeholder="Tuo Nome Autore"
                 class="w-full bg-slate-900 border border-arcade-border text-cyan-300 text-xs px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500">
             </div>
 
@@ -558,7 +553,7 @@
         <div>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-white">I Miei Giochi</h2>
           <p class="text-slate-400 text-sm mt-1">
-            Tutti i giochi salvati nel tuo account e pubblicati nel catalogo globale.
+            Tutti i giochi salvati nel tuo account GitHub e pubblicati nel catalogo globale.
           </p>
         </div>
         <div class="flex items-center space-x-3">
@@ -579,7 +574,7 @@
           </div>
           <div>
             <div id="stat-total-games" class="text-2xl font-black text-white">0</div>
-            <div class="text-xs text-slate-400">Giochi nel Tuo Account</div>
+            <div class="text-xs text-slate-400">Giochi nel Tuo Profilo</div>
           </div>
         </div>
         <div class="bg-arcade-surface border border-arcade-border p-4 rounded-2xl flex items-center space-x-4">
@@ -667,7 +662,7 @@
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
       <div class="flex items-center space-x-2">
         <i class="fa-solid fa-gamepad text-cyan-400"></i>
-        <span class="font-bold text-slate-300">PlayCode Arcade</span> &copy; Piattaforma aperta per giochi HTML5.
+        <span class="font-bold text-slate-300">PlayCode Arcade</span> &copy; Piattaforma aperta per giochi HTML5 su GitHub.
       </div>
       <div class="flex items-center space-x-4">
         <button onclick="triggerPwaInstall()" class="hover:text-cyan-400 transition flex items-center">
@@ -997,7 +992,7 @@ gameLoop();`
     ];
 
     const STORAGE_KEY_GAMES = 'playcode_arcade_games_v1';
-    const STORAGE_KEY_AUTH_USER = 'playcode_active_user_session';
+    const STORAGE_KEY_AUTH_USER = 'playcode_github_active_user';
 
     let state = {
       currentUser: null,
@@ -1018,7 +1013,6 @@ gameLoop();`
     let deferredPrompt = null;
 
     function initPwaFeatures() {
-      // 1. Registra Service Worker se supportato
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js').catch((err) => {
@@ -1027,12 +1021,10 @@ gameLoop();`
         });
       }
 
-      // 2. Cattura l'evento nativo di installazione per Android & Chromium
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
         
-        // Mostra i bottoni di installazione
         const installBtn = document.getElementById('pwa-install-btn');
         if (installBtn) installBtn.classList.remove('hidden');
 
@@ -1043,7 +1035,6 @@ gameLoop();`
         }
       });
 
-      // Se l'app è già installata o aperta come standalone
       window.addEventListener('appinstalled', () => {
         deferredPrompt = null;
         const installBtn = document.getElementById('pwa-install-btn');
@@ -1053,7 +1044,6 @@ gameLoop();`
         showToast("PlayCode Arcade installata con successo!", "success");
       });
 
-      // Mostra il pulsante di installazione per iOS Safari se non è già standalone
       const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
       const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
       if (isIos && !isStandalone) {
@@ -1071,7 +1061,6 @@ gameLoop();`
       const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
       
       if (deferredPrompt) {
-        // Flusso nativo Android / Desktop
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === 'accepted') {
@@ -1080,7 +1069,6 @@ gameLoop();`
           deferredPrompt = null;
         });
       } else if (isIos) {
-        // Istruzioni personalizzate per iOS Safari
         document.getElementById('ios-install-modal').classList.remove('hidden');
       } else {
         showToast("Per installare l'app, tocca i 3 puntini del browser e seleziona 'Aggiungi a schermata Home'", "info");
@@ -1103,11 +1091,11 @@ gameLoop();`
     async function initApp() {
       initPwaFeatures();
 
-      // 1. Ripristina immediatamente la sessione utente persistente prima del rendering
+      // 1. Ripristina sessione utente locale
       restorePersistentSession();
 
-      // 2. Inizializza il widget Netlify Identity
-      initNetlifyIdentity();
+      // 2. Inizializza sessione Supabase Auth (GitHub OAuth)
+      await initSupabaseAuth();
 
       // 3. Carica i giochi salvati localmente
       const savedGames = localStorage.getItem(STORAGE_KEY_GAMES);
@@ -1129,6 +1117,7 @@ gameLoop();`
         await syncGamesWithCloud();
       }
 
+      // Chiudi dropdown utente cliccando fuori
       document.addEventListener('click', (event) => {
         const dropdown = document.getElementById('account-dropdown-menu');
         const userBtn = document.getElementById('user-profile-btn');
@@ -1139,6 +1128,7 @@ gameLoop();`
         }
       });
 
+      // Ricevi messaggi dalla console del gioco
       window.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'PLAYCODE_CONSOLE_LOG') {
           appendConsoleLog(event.data.message);
@@ -1151,7 +1141,7 @@ gameLoop();`
     }
 
     /* ==========================================================
-       PERSISTENT SESSION MANAGEMENT (KEEP LOGGED IN PERMANENTLY)
+       GITHUB OAUTH AUTHENTICATION (SUPABASE)
        ========================================================== */
     function restorePersistentSession() {
       try {
@@ -1159,33 +1149,48 @@ gameLoop();`
         if (cached) {
           state.currentUser = JSON.parse(cached);
           updateAuthUI();
-          return;
-        }
-
-        const gotrueUserRaw = localStorage.getItem('gotrue.user');
-        if (gotrueUserRaw) {
-          const gotrueUser = JSON.parse(gotrueUserRaw);
-          if (gotrueUser && gotrueUser.id) {
-            setNetlifyUserSession(gotrueUser, false);
-          }
         }
       } catch (err) {
-        console.warn("Errore ripristino sessione persistente:", err);
+        console.warn("Errore ripristino sessione locale:", err);
       }
     }
 
-    function setNetlifyUserSession(netlifyUser, notify = false) {
-      if (!netlifyUser) return;
+    async function initSupabaseAuth() {
+      if (!supabaseClient) return;
 
-      const devName = (netlifyUser.user_metadata && netlifyUser.user_metadata.full_name) 
-        ? netlifyUser.user_metadata.full_name 
-        : (netlifyUser.email ? netlifyUser.email.split('@')[0] : 'Sviluppatore');
+      try {
+        // Controlla se c'è una sessione attiva da Supabase
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+          setGitHubUserSession(session.user, false);
+        }
+
+        // Ascolta variazioni di autenticazione (es. ritorno dal redirect di GitHub)
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+          if (event === 'SIGNED_IN' && session && session.user) {
+            setGitHubUserSession(session.user, true);
+          } else if (event === 'SIGNED_OUT') {
+            clearUserSession();
+          }
+        });
+      } catch (err) {
+        console.warn("Errore controllo sessione GitHub:", err);
+      }
+    }
+
+    function setGitHubUserSession(user, notify = false) {
+      if (!user) return;
+
+      const metadata = user.user_metadata || {};
+      const devName = metadata.user_name || metadata.full_name || metadata.name || (user.email ? user.email.split('@')[0] : 'Dev GitHub');
+      const avatarUrl = metadata.avatar_url || '';
 
       state.currentUser = {
-        id: netlifyUser.id,
-        email: netlifyUser.email || '',
+        id: user.id,
+        email: user.email || '',
         username: devName,
-        raw: netlifyUser
+        avatar: avatarUrl,
+        githubHandle: metadata.user_name || devName
       };
 
       try {
@@ -1195,73 +1200,55 @@ gameLoop();`
       updateAuthUI();
 
       if (notify) {
-        showToast(`Bentornato, ${state.currentUser.username}!`, "success");
+        showToast(`Accesso GitHub eseguito! Benvenuto, @${state.currentUser.username}`, "success");
       }
     }
 
-    /* ==========================================================
-       NETLIFY IDENTITY (LOGIN / SIGNUP)
-       ========================================================== */
-    function initNetlifyIdentity() {
-      if (!window.netlifyIdentity) return;
-
-      const initialUser = window.netlifyIdentity.currentUser();
-      if (initialUser) {
-        setNetlifyUserSession(initialUser, false);
+    async function loginWithGitHub() {
+      if (!supabaseClient) {
+        showToast("Client database non inizializzato.", "error");
+        return;
       }
 
-      window.netlifyIdentity.on('init', (user) => {
-        if (user) {
-          setNetlifyUserSession(user, false);
-        } else if (!state.currentUser) {
-          state.currentUser = null;
-          updateAuthUI();
-        }
-      });
+      showToast("Reindirizzamento verso GitHub per l'accesso...", "info");
 
-      window.netlifyIdentity.on('login', (user) => {
-        setNetlifyUserSession(user, true);
-        window.netlifyIdentity.close();
-        if (!document.getElementById('view-mygames').classList.contains('hidden')) {
-          renderMyGamesDashboard();
-        }
-      });
+      try {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'github',
+          options: {
+            redirectTo: window.location.href.split('#')[0] // Reindirizza sempre alla pagina attuale su GitHub Pages
+          }
+        });
 
-      window.netlifyIdentity.on('logout', () => {
-        clearUserSession();
-        showToast("Disconnessione completata", "info");
-        navigateTo('arcade');
-      });
+        if (error) {
+          console.error("Errore GitHub OAuth:", error);
+          showToast(`Errore accesso GitHub: ${error.message}`, "error");
+        }
+      } catch (err) {
+        console.error("Eccezione OAuth:", err);
+        showToast("Errore durante l'avvio dell'autenticazione con GitHub", "error");
+      }
+    }
+
+    async function logoutGitHubUser() {
+      clearUserSession();
+      if (supabaseClient) {
+        try {
+          await supabaseClient.auth.signOut();
+        } catch (e) {
+          console.warn("Errore signout Supabase:", e);
+        }
+      }
+      showToast("Disconnessione completata", "info");
+      navigateTo('arcade');
     }
 
     function clearUserSession() {
       state.currentUser = null;
       try {
         localStorage.removeItem(STORAGE_KEY_AUTH_USER);
-        localStorage.removeItem('gotrue.user');
       } catch (e) {}
       updateAuthUI();
-    }
-
-    function openNetlifyAuth(tab = 'login') {
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.open(tab);
-      } else {
-        showToast("Caricamento widget Netlify in corso...", "info");
-      }
-    }
-
-    function logoutNetlifyUser() {
-      clearUserSession();
-      if (window.netlifyIdentity) {
-        try {
-          window.netlifyIdentity.logout();
-        } catch (e) {
-          console.warn("Netlify logout warning:", e);
-        }
-      }
-      showToast("Disconnessione completata", "info");
-      navigateTo('arcade');
     }
 
     function updateAuthUI() {
@@ -1269,6 +1256,7 @@ gameLoop();`
       const userControls = document.getElementById('auth-user-controls');
       const userDisplayName = document.getElementById('user-display-name');
       const userAvatar = document.getElementById('user-avatar');
+      const userAvatarImg = document.getElementById('user-avatar-img');
       const menuEmail = document.getElementById('account-menu-email');
       const studioAuthorInput = document.getElementById('studio-game-author');
 
@@ -1276,13 +1264,23 @@ gameLoop();`
         if (guestControls) guestControls.classList.add('hidden');
         if (userControls) userControls.classList.remove('hidden');
         if (userDisplayName) userDisplayName.innerText = state.currentUser.username;
-        if (userAvatar) userAvatar.innerText = state.currentUser.username.charAt(0).toUpperCase();
-        if (menuEmail) menuEmail.innerText = state.currentUser.email || 'developer';
+        if (menuEmail) menuEmail.innerText = `@${state.currentUser.githubHandle || state.currentUser.username}`;
+        
+        if (state.currentUser.avatar && userAvatarImg) {
+          userAvatarImg.src = state.currentUser.avatar;
+          userAvatarImg.classList.remove('hidden');
+          if (userAvatar) userAvatar.classList.add('hidden');
+        } else if (userAvatar) {
+          userAvatar.innerText = state.currentUser.username.charAt(0).toUpperCase();
+          userAvatar.classList.remove('hidden');
+          if (userAvatarImg) userAvatarImg.classList.add('hidden');
+        }
+
         if (studioAuthorInput) studioAuthorInput.value = state.currentUser.username;
       } else {
         if (guestControls) guestControls.classList.remove('hidden');
         if (userControls) userControls.classList.add('hidden');
-        if (studioAuthorInput && (studioAuthorInput.value === 'Sviluppatore' || !studioAuthorInput.value)) {
+        if (studioAuthorInput && (studioAuthorInput.value === 'Sviluppatore GitHub' || !studioAuthorInput.value)) {
           studioAuthorInput.value = 'Anonimo';
         }
       }
@@ -1342,7 +1340,7 @@ gameLoop();`
           if (!document.getElementById('view-mygames').classList.contains('hidden')) {
             renderMyGamesDashboard();
           }
-          if (notifyUser) showToast("Catalogo sincronizzato col Database Cloud!", "success");
+          if (notifyUser) showToast("Catalogo sincronizzato con successo!", "success");
         } else {
           await uploadDefaultGamesToCloud();
         }
@@ -1420,12 +1418,12 @@ gameLoop();`
     }
 
     /* ==========================================================
-       NAVIGATION & ROUTING (CON CONTROLLO ACCESSO STUDIO)
+       NAVIGATION & ROUTING
        ========================================================== */
     function handleStudioNavigation(targetGameId = null) {
       if (!state.currentUser) {
-        showToast("Per accedere allo Studio Sviluppatore devi prima autenticarti", "info");
-        openNetlifyAuth('login');
+        showToast("Per creare o salvare giochi nello Studio devi autenticarti con GitHub", "info");
+        loginWithGitHub();
         return;
       }
 
@@ -1468,15 +1466,12 @@ gameLoop();`
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    /* ==========================================================
-       HELPERS FOR PLATFORM BADGES
-       ========================================================== */
     function getPlatformBadge(platform) {
       const p = platform || 'both';
       if (p === 'pc') {
-        return `<span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center" title="Ottimizzato per PC (Tastiera/Mouse)"><i class="fa-solid fa-desktop mr-1"></i>PC</span>`;
+        return `<span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center" title="Ottimizzato per PC"><i class="fa-solid fa-desktop mr-1"></i>PC</span>`;
       } else if (p === 'mobile') {
-        return `<span class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center" title="Ottimizzato per Mobile (Touch)"><i class="fa-solid fa-mobile-screen mr-1"></i>Mobile</span>`;
+        return `<span class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center" title="Ottimizzato per Mobile"><i class="fa-solid fa-mobile-screen mr-1"></i>Mobile</span>`;
       }
       return `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center" title="Compatibile con PC e Mobile"><i class="fa-solid fa-laptop mr-1"></i><i class="fa-solid fa-mobile-screen mr-1"></i>PC & Mobile</span>`;
     }
@@ -1714,7 +1709,7 @@ gameLoop();`
       loadTemplate('canvas');
       const authorInput = document.getElementById('studio-game-author');
       if (authorInput) {
-        authorInput.value = state.currentUser ? state.currentUser.username : 'Sviluppatore';
+        authorInput.value = state.currentUser ? state.currentUser.username : 'Sviluppatore GitHub';
       }
     }
 
@@ -1907,7 +1902,7 @@ gameLoop();`
       const category = document.getElementById('studio-game-category').value;
       const platform = document.getElementById('studio-game-platform').value;
       const desc = document.getElementById('studio-game-desc').value;
-      const authorVal = document.getElementById('studio-game-author').value.trim() || (state.currentUser ? state.currentUser.username : 'Sviluppatore');
+      const authorVal = document.getElementById('studio-game-author').value.trim() || (state.currentUser ? state.currentUser.username : 'Sviluppatore GitHub');
       const html = document.getElementById('code-html').value;
       const css = document.getElementById('code-css').value;
       const js = document.getElementById('code-js').value;
@@ -2153,7 +2148,7 @@ function updateUI() {
       const category = document.getElementById('studio-game-category').value;
       const platform = document.getElementById('studio-game-platform').value;
       const desc = document.getElementById('studio-game-desc').value;
-      const authorVal = document.getElementById('studio-game-author').value.trim() || (state.currentUser ? state.currentUser.username : 'Sviluppatore');
+      const authorVal = document.getElementById('studio-game-author').value.trim() || (state.currentUser ? state.currentUser.username : 'Sviluppatore GitHub');
       const authorId = state.currentUser ? state.currentUser.id : 'anon-creator';
       const html = document.getElementById('code-html').value;
       const css = document.getElementById('code-css').value;
@@ -2225,8 +2220,8 @@ function updateUI() {
 
     function createNewGameInStudio() {
       if (!state.currentUser) {
-        showToast("Per creare un nuovo progetto devi prima autenticarti", "info");
-        openNetlifyAuth('login');
+        showToast("Per creare un nuovo progetto devi prima accedere con GitHub", "info");
+        loginWithGitHub();
         return;
       }
       state.currentEditingGameId = null;
@@ -2236,8 +2231,8 @@ function updateUI() {
 
     function inspectGameInStudio(gameId) {
       if (!state.currentUser) {
-        showToast("Per modificare i progetti devi prima autenticarti", "info");
-        openNetlifyAuth('login');
+        showToast("Per modificare i progetti devi prima accedere con GitHub", "info");
+        loginWithGitHub();
         return;
       }
       const game = state.games.find(g => g.id === gameId);
@@ -2282,7 +2277,7 @@ function updateUI() {
         container.innerHTML = `
           <div class="text-center py-16 bg-arcade-surface rounded-2xl border border-arcade-border">
             <i class="fa-solid fa-gamepad text-4xl text-slate-600 mb-3"></i>
-            <h3 class="text-lg font-bold text-slate-300">Nessun gioco salvato nel tuo account</h3>
+            <h3 class="text-lg font-bold text-slate-300">Nessun gioco salvato nel tuo profilo</h3>
             <p class="text-slate-500 text-sm mt-1 mb-4">Crea o pubblica un gioco dal compilatore per vederlo qui e nel Catalogo!</p>
             <button onclick="createNewGameInStudio()" class="px-4 py-2 bg-cyan-500 text-arcade-dark font-bold text-xs rounded-xl shadow-md">Crea Nuovo Gioco</button>
           </div>
